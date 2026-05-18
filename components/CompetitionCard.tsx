@@ -1,27 +1,47 @@
 import { View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { colors, radius } from '../theme/tokens';
 import { useRouter } from 'expo-router';
 import Flag from './Flag';
+import TeamLogo from './TeamLogo';
+
+type HighlightTeam = {
+  id?: number;
+  tla: string;
+  crest?: string;
+  fallbackColor?: string;
+};
 
 type Highlight = {
   type: 'live' | 'next' | 'derby';
   label: string;
+  homeTeam?: HighlightTeam;
+  awayTeam?: HighlightTeam;
 };
 
 type Props = {
-  /** Code court affiché dans la pastille (ex: "L1", "PL") */
+  /** Code court affiché dans la pastille fallback (ex: "L1", "PL") */
   code: string;
-  /** Code Football-Data utilisé pour la navigation (ex: "FL1", "PL", "PD") */
+  /** Code Football-Data utilisé pour la navigation */
   apiCode: string;
+  /** URL de l'emblème de la compétition (depuis l'API) */
+  emblem?: string;
   name: string;
   country: string;
-  countryFlag?: string;   // Nom anglais pour récupérer le vrai drapeau
+  countryFlag?: string;
   matchday: string;
   color: string;
   logoTextColor: string;
-  leader?: { code: string; name: string; color: string; points: number };
+  leader?: {
+    id?: number;
+    tla: string;
+    crest?: string;
+    name: string;
+    color: string;
+    points: number;
+  };
   highlight?: Highlight;
   loading?: boolean;
   errorMessage?: string;
@@ -30,6 +50,7 @@ type Props = {
 export default function CompetitionCard({
   code,
   apiCode,
+  emblem,
   name,
   country,
   countryFlag,
@@ -63,6 +84,7 @@ export default function CompetitionCard({
   };
 
   const highlightStyle = highlight ? getHighlightStyle(highlight.type) : null;
+  const isSvgEmblem = emblem?.toLowerCase().endsWith('.svg');
 
   return (
     <Pressable
@@ -80,9 +102,21 @@ export default function CompetitionCard({
         <View style={styles.content}>
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <View style={[styles.logoBox, { backgroundColor: color }]}>
-                <Text style={[styles.logoText, { color: logoTextColor }]}>{code}</Text>
-              </View>
+              {emblem && !isSvgEmblem ? (
+                <View style={styles.emblemBox}>
+                  <Image
+                    source={{ uri: emblem }}
+                    style={styles.emblemImage}
+                    contentFit="contain"
+                    cachePolicy="memory-disk"
+                    transition={150}
+                  />
+                </View>
+              ) : (
+                <View style={[styles.logoBox, { backgroundColor: color }]}>
+                  <Text style={[styles.logoText, { color: logoTextColor }]}>{code}</Text>
+                </View>
+              )}
               <View>
                 <Text style={styles.name}>{name}</Text>
                 <View style={styles.countryRow}>
@@ -97,7 +131,7 @@ export default function CompetitionCard({
             <Ionicons name="chevron-forward" size={18} color={colors.textDim} />
           </View>
 
-          {/* Leader (ou loading / error) */}
+          {/* Leader */}
           <View style={styles.leaderSection}>
             <Text style={styles.leaderLabel}>LEADER</Text>
             {loading ? (
@@ -112,7 +146,13 @@ export default function CompetitionCard({
               </View>
             ) : leader ? (
               <View style={styles.leaderRow}>
-                <View style={[styles.leaderDot, { backgroundColor: leader.color }]} />
+                <TeamLogo
+                  url={leader.crest}
+                  tla={leader.tla}
+                  size={20}
+                  fallbackBg={leader.color}
+                  fallbackText="#FFFFFF"
+                />
                 <Text style={styles.leaderName}>{leader.name}</Text>
                 <Text style={styles.leaderPoints}>{leader.points} pts</Text>
               </View>
@@ -133,6 +173,25 @@ export default function CompetitionCard({
                   color={highlightStyle.iconColor}
                 />
               )}
+              {/* Mini logos home/away si dispo */}
+              {highlight.homeTeam && highlight.awayTeam ? (
+                <View style={styles.highlightMiniLogos}>
+                  <TeamLogo
+                    url={highlight.homeTeam.crest}
+                    tla={highlight.homeTeam.tla}
+                    size={14}
+                    fallbackBg={highlight.homeTeam.fallbackColor || colors.surfaceAlt}
+                    fallbackText="#FFFFFF"
+                  />
+                  <TeamLogo
+                    url={highlight.awayTeam.crest}
+                    tla={highlight.awayTeam.tla}
+                    size={14}
+                    fallbackBg={highlight.awayTeam.fallbackColor || colors.surfaceAlt}
+                    fallbackText="#FFFFFF"
+                  />
+                </View>
+              ) : null}
               <Text style={styles.highlightText} numberOfLines={1}>
                 {highlightStyle.isLive && (
                   <Text style={{ color: colors.accent, fontWeight: '500' }}>LIVE </Text>
@@ -191,6 +250,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
   },
+  emblemBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 4,
+  },
+  emblemImage: {
+    width: '100%',
+    height: '100%',
+  },
   logoBox: {
     width: 32,
     height: 32,
@@ -225,17 +297,12 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: colors.textDim,
     letterSpacing: 0.8,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   leaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-  },
-  leaderDot: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    gap: 8,
   },
   leaderName: {
     fontSize: 12,
@@ -252,7 +319,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    height: 18,
+    height: 20,
   },
   loadingText: {
     fontSize: 11,
@@ -262,7 +329,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    height: 18,
+    height: 20,
   },
   errorText: {
     fontSize: 11,
@@ -275,6 +342,10 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     borderTopWidth: 0.5,
     borderTopColor: colors.border,
+  },
+  highlightMiniLogos: {
+    flexDirection: 'row',
+    gap: 3,
   },
   liveDot: {
     width: 5,

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { ScrollView, View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { colors, radius } from '../../theme/tokens';
@@ -507,9 +508,21 @@ export default function CompetitionDetailScreen() {
         >
           <View style={[styles.identityHalo, { backgroundColor: hexToRgba(config.color, 0.4) }]} />
           <View style={styles.identityRow}>
-            <View style={[styles.compLogo, { backgroundColor: config.color }]}>
-              <Text style={[styles.compLogoText, { color: config.logoTextColor }]}>{config.displayCode}</Text>
-            </View>
+            {standingsData?.competition?.emblem && !standingsData.competition.emblem.toLowerCase().endsWith('.svg') ? (
+              <View style={styles.compLogoEmblem}>
+                <Image
+                  source={{ uri: standingsData.competition.emblem }}
+                  style={{ width: '100%', height: '100%' }}
+                  contentFit="contain"
+                  cachePolicy="memory-disk"
+                  transition={150}
+                />
+              </View>
+            ) : (
+              <View style={[styles.compLogo, { backgroundColor: config.color }]}>
+                <Text style={[styles.compLogoText, { color: config.logoTextColor }]}>{config.displayCode}</Text>
+              </View>
+            )}
             <View style={{ flex: 1 }}>
               <Text style={styles.compName}>{config.name}</Text>
               <View style={styles.compSubtitleRow}>
@@ -562,6 +575,7 @@ const styles = StyleSheet.create({
   identityHalo: { position: 'absolute', top: -30, right: -30, width: 140, height: 140, borderRadius: 70 },
   identityRow: { flexDirection: 'row', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 },
   compLogo: { width: 60, height: 60, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  compLogoEmblem: { width: 60, height: 60, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.06)', padding: 6, alignItems: 'center', justifyContent: 'center' },
   compLogoText: { fontSize: 22, fontWeight: '700' },
   compName: { fontSize: 22, color: colors.text, fontWeight: '600', letterSpacing: -0.5 },
   compSubtitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },

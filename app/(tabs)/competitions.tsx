@@ -43,20 +43,29 @@ function formatDayShort(utcDate: string): string {
   return d.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit' });
 }
 
+function teamToHighlight(t: Match['homeTeam']) {
+  return {
+    id: t.id,
+    tla: t.tla,
+    crest: t.crest,
+    fallbackColor: getTeamColor(t.id),
+  };
+}
+
 function pickCompetitionHighlight(matches: Match[] | undefined, apiCode: string) {
   if (!matches) return undefined;
   const filtered = matches.filter((m) => m.competition.code === apiCode);
 
   const live = filtered.find((m) => m.status === 'IN_PLAY' || m.status === 'PAUSED');
   if (live) {
-    const home = live.homeTeam.tla;
-    const away = live.awayTeam.tla;
     const hs = live.score.fullTime.home ?? 0;
     const as = live.score.fullTime.away ?? 0;
     const minute = live.minute ? `${live.minute}'` : 'LIVE';
     return {
       type: 'live' as const,
-      label: `${home} ${hs} — ${as} ${away} · ${minute}`,
+      label: `${hs} — ${as} · ${minute}`,
+      homeTeam: teamToHighlight(live.homeTeam),
+      awayTeam: teamToHighlight(live.awayTeam),
     };
   }
 
@@ -71,7 +80,9 @@ function pickCompetitionHighlight(matches: Match[] | undefined, apiCode: string)
   if (upcoming) {
     return {
       type: 'next' as const,
-      label: `${formatDayShort(upcoming.utcDate)} · ${upcoming.homeTeam.tla} — ${upcoming.awayTeam.tla} · ${formatTime(upcoming.utcDate)}`,
+      label: `${formatDayShort(upcoming.utcDate)} · ${formatTime(upcoming.utcDate)}`,
+      homeTeam: teamToHighlight(upcoming.homeTeam),
+      awayTeam: teamToHighlight(upcoming.awayTeam),
     };
   }
 
@@ -84,7 +95,9 @@ function CompetitionCardWithData({ config, matches }: { config: CompetitionConfi
   const leaderEntry = pickLeader(data);
   const leader = leaderEntry
     ? {
-        code: leaderEntry.team.tla,
+        id: leaderEntry.team.id,
+        tla: leaderEntry.team.tla,
+        crest: leaderEntry.team.crest,
         name: leaderEntry.team.shortName || leaderEntry.team.name,
         color: getTeamColor(leaderEntry.team.id),
         points: leaderEntry.points,
@@ -93,11 +106,13 @@ function CompetitionCardWithData({ config, matches }: { config: CompetitionConfi
 
   const matchday = formatMatchday(data);
   const highlight = pickCompetitionHighlight(matches, config.apiCode);
+  const emblem = data?.competition?.emblem;
 
   return (
     <CompetitionCard
       code={config.displayCode}
       apiCode={config.apiCode}
+      emblem={emblem}
       name={config.name}
       country={config.country}
       countryFlag={config.countryFlag}
