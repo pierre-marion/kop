@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius } from '../theme/tokens';
+import Flag from './Flag';
 
 type Club = {
   code?: string;
-  flag?: string;
+  country?: string;
   name: string;
   color?: string;
   textColor?: string;
@@ -45,7 +46,7 @@ export default function RumorCard({
           <Text style={[styles.clubCode, { color: club.textColor }]}>{club.code}</Text>
         </View>
       ) : (
-        <Text style={{ fontSize: 14 }}>{club.flag}</Text>
+        <Flag country={club.country} size={22} showFallbackText={false} />
       )}
       <Text style={[styles.clubName, highlighted && { color: colors.text, fontWeight: '500' }]}>
         {club.name}

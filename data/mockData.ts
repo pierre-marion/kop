@@ -238,7 +238,7 @@ export const transferRumors = [
     playerName: 'Bruno Fernandes',
     amount: '~80M€',
     clubFrom: { code: 'MU', name: 'Man United', color: '#DA291C', textColor: '#FBE122' },
-    clubTo: { flag: '🇸🇦', name: 'Arabie Saoudite' },
+    clubTo: { country: 'Saudi Arabia', name: 'Arabie Saoudite' },
     reliability: 45,
     sources: 3,
     trackedDays: 2,
