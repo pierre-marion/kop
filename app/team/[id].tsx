@@ -7,6 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { colors, radius } from '../../theme/tokens';
 import InnerTabs from '../../components/InnerTabs';
 import TeamLogo from '../../components/TeamLogo';
+import Flag from '../../components/Flag';
 import {
   useTeam,
   useTeamUpcomingMatches,
@@ -371,7 +372,7 @@ function OverviewTab({
                     <Text style={styles.playerStatLabel}>ANS</Text>
                   </View>
                   <View style={styles.playerStat}>
-                    <Text style={styles.playerStatValue}>{(player.nationality || '').slice(0, 3).toUpperCase()}</Text>
+                    <Flag country={player.nationality} size={20} showFallbackText={false} />
                     <Text style={styles.playerStatLabel}>NAT.</Text>
                   </View>
                 </View>
@@ -443,10 +444,13 @@ function SquadTab({
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.squadName}>{player.name}</Text>
-                  <Text style={styles.squadMeta}>
-                    {player.nationality || '—'}
-                    {getAge(player.dateOfBirth) !== null ? ` · ${getAge(player.dateOfBirth)} ans` : ''}
-                  </Text>
+                  <View style={styles.squadMetaRow}>
+                    <Flag country={player.nationality} size={12} showFallbackText={false} />
+                    <Text style={styles.squadMeta}>
+                      {player.nationality || '—'}
+                      {getAge(player.dateOfBirth) !== null ? ` · ${getAge(player.dateOfBirth)} ans` : ''}
+                    </Text>
+                  </View>
                 </View>
               </View>
             ))}
@@ -646,5 +650,6 @@ const styles = StyleSheet.create({
   squadRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9, paddingHorizontal: 12 },
   squadAvatar: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   squadName: { fontSize: 12, color: colors.text, fontWeight: '500' },
-  squadMeta: { fontSize: 9, color: colors.textMuted, marginTop: 2 },
+  squadMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
+  squadMeta: { fontSize: 9, color: colors.textMuted },
 });
