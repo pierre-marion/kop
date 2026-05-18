@@ -1,74 +1,155 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { colors, radius } from '../theme/tokens';
-import { liveMatch } from '../data/mockData';
+import { useFeaturedMatch } from '../hooks/useFootballData';
+import TeamLogo from './TeamLogo';
 
 export default function LiveMatchCard() {
-  return (
-    <View style={styles.container}>
-      {/* Header de la card */}
-      <View style={styles.header}>
-        <View style={styles.compRow}>
-          <View style={[styles.compBadge, { backgroundColor: liveMatch.competitionColor }]}>
-            <Text style={styles.compBadgeText}>{liveMatch.competitionCode}</Text>
-          </View>
-          <Text style={styles.compName}>{liveMatch.competition}</Text>
-        </View>
-        <View style={styles.liveBadge}>
-          <View style={styles.liveDot} />
-          <Text style={styles.liveText}>LIVE {liveMatch.minute}</Text>
-        </View>
-      </View>
+  const router = useRouter();
+  const { data: matchToShow, isLoading, error } = useFeaturedMatch();
 
-      {/* Score */}
-      <View style={styles.scoreRow}>
-        {/* Équipe domicile */}
-        <View style={styles.teamBlock}>
-          <LinearGradient
-            colors={[liveMatch.homeTeam.color1, liveMatch.homeTeam.color2]}
-            style={styles.teamLogo}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Text style={styles.teamLogoText}>{liveMatch.homeTeam.code}</Text>
-          </LinearGradient>
-          <Text style={styles.teamName}>{liveMatch.homeTeam.name}</Text>
+  // État loading
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator color={colors.accent} />
+        <Text style={styles.loadingText}>Chargement du match...</Text>
+      </View>
+    );
+  }
+
+  // État erreur
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <Ionicons name="warning-outline" size={24} color={colors.textMuted} />
+        <Text style={styles.errorText}>
+          {error.message || 'Erreur de chargement'}
+        </Text>
+      </View>
+    );
+  }
+
+  // État vide
+  if (!matchToShow) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <Ionicons name="football-outline" size={28} color={colors.textMuted} />
+        <Text style={styles.emptyText}>Aucun match prévu cette semaine</Text>
+      </View>
+    );
+  }
+
+  // Vrai match à afficher
+  const isLive = matchToShow.status === 'IN_PLAY' || matchToShow.status === 'PAUSED';
+  const homeScore = matchToShow.score.fullTime.home ?? 0;
+  const awayScore = matchToShow.score.fullTime.away ?? 0;
+  const homeWinning = homeScore > awayScore;
+  const awayWinning = awayScore > homeScore;
+  const isScheduled = matchToShow.status === 'SCHEDULED' || (matchToShow.status as any) === 'TIMED';
+
+  return (
+    <Pressable onPress={() => router.push(`/match/${matchToShow.id}`)}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.compRow}>
+            <Text style={styles.compName}>
+              {matchToShow.competition.name.toUpperCase()} · J{matchToShow.matchday}
+            </Text>
+          </View>
+
+          {isLive ? (
+            <View style={styles.liveBadge}>
+              <View style={styles.liveDot} />
+              <Text style={styles.liveText}>
+                LIVE {matchToShow.minute ? `${matchToShow.minute}'` : ''}
+              </Text>
+            </View>
+          ) : matchToShow.status === 'FINISHED' ? (
+            <View style={styles.finishedBadge}>
+              <Text style={styles.finishedText}>TERMINÉ</Text>
+            </View>
+          ) : (
+            <View style={styles.upcomingBadge}>
+              <Ionicons name="time-outline" size={11} color={colors.textMuted} />
+              <Text style={styles.upcomingText}>
+                {(() => {
+                  const matchDate = new Date(matchToShow.utcDate);
+                  const today = new Date();
+                  const isToday = matchDate.toDateString() === today.toDateString();
+                  const isTomorrow =
+                    matchDate.toDateString() ===
+                    new Date(today.getTime() + 86400000).toDateString();
+
+                  const timeStr = matchDate.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  });
+
+                  if (isToday) return `AUJOURD'HUI · ${timeStr}`;
+                  if (isTomorrow) return `DEMAIN · ${timeStr}`;
+
+                  const dateStr = matchDate
+                    .toLocaleDateString('fr-FR', {
+                      weekday: 'short',
+                      day: 'numeric',
+                      month: 'short',
+                    })
+                    .toUpperCase();
+                  return `${dateStr} · ${timeStr}`;
+                })()}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Score */}
-        <View style={styles.scoreBlock}>
-          <Text style={[styles.score, { color: colors.accent }]}>{liveMatch.homeTeam.score}</Text>
-          <Text style={styles.scoreDash}>—</Text>
-          <Text style={styles.score}>{liveMatch.awayTeam.score}</Text>
-        </View>
-
-        {/* Équipe extérieur */}
-        <View style={styles.teamBlock}>
-          <LinearGradient
-            colors={[liveMatch.awayTeam.color1, liveMatch.awayTeam.color2]}
-            style={styles.teamLogo}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Text style={[styles.teamLogoText, { color: liveMatch.awayTeam.color1 }]}>
-              {liveMatch.awayTeam.code}
+        <View style={styles.scoreRow}>
+          {/* Équipe à domicile */}
+          <View style={styles.teamBlock}>
+            <TeamLogo
+              url={matchToShow.homeTeam.crest}
+              tla={matchToShow.homeTeam.tla}
+              size={52}
+            />
+            <Text style={styles.teamName} numberOfLines={1}>
+              {matchToShow.homeTeam.shortName}
             </Text>
-          </LinearGradient>
-          <Text style={styles.teamName}>{liveMatch.awayTeam.name}</Text>
+          </View>
+
+          {/* Score central */}
+          <View style={styles.scoreBlock}>
+            {isScheduled ? (
+              <Text style={styles.vsText}>vs</Text>
+            ) : (
+              <>
+                <Text style={[styles.score, homeWinning && { color: colors.accent }]}>
+                  {homeScore}
+                </Text>
+                <Text style={styles.scoreDash}>—</Text>
+                <Text style={[styles.score, awayWinning && { color: colors.accent }]}>
+                  {awayScore}
+                </Text>
+              </>
+            )}
+          </View>
+
+          {/* Équipe à l'extérieur */}
+          <View style={styles.teamBlock}>
+            <TeamLogo
+              url={matchToShow.awayTeam.crest}
+              tla={matchToShow.awayTeam.tla}
+              size={52}
+            />
+            <Text style={styles.teamName} numberOfLines={1}>
+              {matchToShow.awayTeam.shortName}
+            </Text>
+          </View>
         </View>
       </View>
-
-      {/* Dernier événement */}
-      <View style={styles.eventRow}>
-        <Ionicons name="football" size={13} color={colors.accent} />
-        <Text style={styles.eventText}>
-          <Text style={{ color: colors.accent, fontWeight: '500' }}>{liveMatch.lastEvent.minute} </Text>
-          {liveMatch.lastEvent.text}
-        </Text>
-        <Ionicons name="chevron-forward" size={14} color={colors.textDim} />
-      </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -82,33 +163,39 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: colors.border,
   },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 130,
+    gap: 8,
+  },
+  loadingText: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+  errorText: {
+    fontSize: 11,
+    color: colors.textMuted,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  emptyText: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 14,
   },
-  compRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  compBadge: {
-    width: 18,
-    height: 18,
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  compBadgeText: {
-    fontSize: 9,
-    color: 'white',
-    fontWeight: '500',
-  },
+  compRow: { flex: 1 },
   compName: {
     fontSize: 10,
     color: colors.textMuted,
     letterSpacing: 0.5,
+    fontWeight: '500',
   },
   liveBadge: {
     flexDirection: 'row',
@@ -131,6 +218,37 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     fontWeight: '500',
   },
+  finishedBadge: {
+    backgroundColor: colors.surfaceAlt,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    borderWidth: 0.5,
+    borderColor: colors.border,
+  },
+  finishedText: {
+    fontSize: 10,
+    color: colors.textMuted,
+    letterSpacing: 0.5,
+    fontWeight: '600',
+  },
+  upcomingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.surfaceAlt,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    borderWidth: 0.5,
+    borderColor: colors.border,
+  },
+  upcomingText: {
+    fontSize: 10,
+    color: colors.textMuted,
+    letterSpacing: 0.3,
+    fontWeight: '600',
+  },
   scoreRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -139,32 +257,20 @@ const styles = StyleSheet.create({
   teamBlock: {
     alignItems: 'center',
     gap: 8,
-    width: 80,   //80
-  },
-  teamLogo: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  teamLogoText: {
-    fontSize: 16,
-    color: 'white',
-    fontWeight: '500',
-    letterSpacing: -0.5,
+    width: 90,
   },
   teamName: {
     fontSize: 11,
     color: colors.text,
     fontWeight: '500',
+    textAlign: 'center',
   },
   scoreBlock: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    flex: 1,
+    justifyContent: 'center',
   },
   score: {
     fontSize: 44,
@@ -174,23 +280,14 @@ const styles = StyleSheet.create({
     lineHeight: 44,
   },
   scoreDash: {
-    fontSize: 28,            // 16 → 28
-    color: colors.textMuted, // textDim → textMuted (plus visible)
+    fontSize: 28,
+    color: colors.textMuted,
     fontWeight: '300',
-    marginTop: -4,           // pour centrer verticalement avec les chiffres
+    marginTop: -4,
   },
-  eventRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    borderTopWidth: 0.5,
-    borderTopColor: colors.border,
-    marginTop: 14,
-    paddingTop: 10,
-  },
-  eventText: {
-    fontSize: 11,
-    color: colors.text,
-    flex: 1,
+  vsText: {
+    fontSize: 18,
+    color: colors.textMuted,
+    fontWeight: '500',
   },
 });

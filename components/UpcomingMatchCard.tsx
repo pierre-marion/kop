@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, radius } from '../theme/tokens';
+import { router } from 'expo-router/build/exports';
 
 type Props = {
   competition: string;
@@ -11,6 +12,8 @@ type Props = {
 
 export default function UpcomingMatchCard({ competition, time, homeTeam, awayTeam }: Props) {
   return (
+
+    <Pressable onPress={() => router.push('/match/m1')}>
     <LinearGradient
       colors={[
         `${homeTeam.color}2E`, // hex avec alpha ~18%
@@ -41,6 +44,7 @@ export default function UpcomingMatchCard({ competition, time, homeTeam, awayTea
         <Text style={styles.name}>{awayTeam.name}</Text>
       </View>
     </LinearGradient>
+    </Pressable>
   );
 }
 

@@ -448,3 +448,205 @@ export const notifStats = {
   newCount: 3,
   totalUnread: 7,
 };
+
+// ============================================
+// PAGE MATCH DETAIL
+// ============================================
+
+export const matchDetail = {
+  id: 'm1',
+  competition: 'LIGUE 1 · J34 · PARC DES PRINCES',
+  competitionCode: 'L1',
+  competitionColor: '#003DA5',
+  status: 'live',
+  minute: "67'",
+  homeTeam: {
+    code: 'PSG',
+    name: 'Paris',
+    fullName: 'Paris Saint-Germain',
+    score: 2,
+    gradient: ['#004170', '#ED1C24'] as [string, string],
+    form: ['W', 'W', 'W', 'D', 'W'], // W=win, D=draw, L=loss
+  },
+  awayTeam: {
+    code: 'OM',
+    name: 'Marseille',
+    fullName: 'Olympique de Marseille',
+    score: 1,
+    gradient: ['#009DDC', '#FFFFFF'] as [string, string],
+    logoTextColor: '#009DDC',
+    form: ['W', 'L', 'D', 'W', 'L'],
+  },
+  events: [
+    {
+      minute: "63'",
+      type: 'goal',
+      team: 'home',
+      player: 'Dembélé',
+      assist: 'Vitinha',
+      score: '2-1',
+    },
+    {
+      minute: "52'",
+      type: 'yellow-card',
+      team: 'away',
+      player: 'Aubameyang',
+      detail: 'Faute sur Hakimi',
+    },
+    {
+      minute: "38'",
+      type: 'goal',
+      team: 'away',
+      player: 'Aubameyang',
+      assist: 'Greenwood',
+      score: '1-1',
+    },
+    {
+      minute: "12'",
+      type: 'goal',
+      team: 'home',
+      player: 'Barcola',
+      assist: 'Dembélé',
+      score: '1-0',
+    },
+  ],
+  stats: [
+    { label: 'POSSESSION', home: 62, away: 38, suffix: '%' },
+    { label: 'TIRS', home: 14, away: 7 },
+    { label: 'TIRS CADRÉS', home: 6, away: 3 },
+    { label: 'CORNERS', home: 4, away: 5 },
+  ],
+  h2h: { homeWins: 3, draws: 1, awayWins: 1 },
+};
+
+// ============================================
+// PAGE COMPETITION DETAIL
+// ============================================
+
+export const competitionDetail = {
+  id: 'l1',
+  code: 'L1',
+  name: 'Ligue 1',
+  fullName: 'Ligue 1 Uber Eats',
+  country: '🇫🇷 FRANCE',
+  season: 'SAISON 2025-26',
+  matchday: 'J34/38',
+  remainingDays: 4,
+  color: '#003DA5',
+  logoTextColor: '#FFFFFF',
+  standings: [
+    {
+      rank: 1,
+      teamCode: 'PSG',
+      teamName: 'Paris SG',
+      teamColor: '#004170',
+      played: 33,
+      diff: '+47',
+      form: ['W', 'W', 'W', 'D', 'W'],
+      points: 79,
+      qualifZone: 'champions',
+    },
+    {
+      rank: 2,
+      teamCode: 'MON',
+      teamName: 'Monaco',
+      teamColor: '#DA001A',
+      played: 33,
+      diff: '+18',
+      form: ['W', 'D', 'W', 'W', 'L'],
+      points: 62,
+      qualifZone: 'champions',
+    },
+    {
+      rank: 3,
+      teamCode: 'OM',
+      teamName: 'Marseille',
+      teamColor: '#009DDC',
+      played: 33,
+      diff: '+15',
+      form: ['W', 'L', 'D', 'W', 'L'],
+      points: 58,
+      qualifZone: 'champions',
+    },
+    {
+      rank: 4,
+      teamCode: 'LIL',
+      teamName: 'Lille',
+      teamColor: '#C8102E',
+      played: 33,
+      diff: '+12',
+      form: ['D', 'W', 'W', 'D', 'W'],
+      points: 54,
+      qualifZone: 'europa',
+    },
+    {
+      rank: 5,
+      teamCode: 'LYO',
+      teamName: 'Lyon',
+      teamColor: '#2E5C9A',
+      played: 33,
+      diff: '+8',
+      form: ['W', 'L', 'W', 'D', 'W'],
+      points: 52,
+      qualifZone: 'europa',
+    },
+  ],
+  topScorersList: [
+    { rank: 1, name: 'Dembélé', team: 'PSG', teamColor: '#004170', goals: 24 },
+    { rank: 2, name: 'Aubameyang', team: 'OM', teamColor: '#009DDC', goals: 19 },
+    { rank: 3, name: 'Ben Yedder', team: 'MON', teamColor: '#DA001A', goals: 16 },
+  ],
+};
+
+// ============================================
+// PAGE TEAM DETAIL
+// ============================================
+
+export const teamDetail = {
+  id: 'psg',
+  code: 'PSG',
+  shortName: 'Paris SG',
+  fullName: 'Paris Saint-Germain',
+  founded: 1970,
+  gradient: ['#004170', '#ED1C24'] as [string, string],
+  competition: {
+    code: 'L1',
+    name: 'Ligue 1',
+    color: '#003DA5',
+    rank: 1,
+    points: 79,
+  },
+  stats: {
+    wins: 25,
+    draws: 4,
+    losses: 4,
+    goalDiff: '+47',
+  },
+  currentMatch: {
+    competition: 'LIGUE 1 · J34',
+    minute: "67'",
+    homeCode: 'PSG',
+    homeColor: '#004170',
+    homeScore: 2,
+    awayCode: 'OM',
+    awayGradient: ['#009DDC', '#FFFFFF'] as [string, string],
+    awayLogoTextColor: '#009DDC',
+    awayScore: 1,
+  },
+  upcomingMatches: [
+    { date: 'SAM 24/05', opponent: 'Monaco', time: '21:00', competition: 'L1' },
+    { date: 'MER 28/05', opponent: 'Real Madrid', time: '21:00', competition: 'UCL' },
+    { date: 'SAM 31/05', opponent: 'Lyon', time: '21:00', competition: 'L1' },
+  ],
+  keyPlayers: [
+    { name: 'Dembélé', position: 'Attaquant', isStar: true, stats: [{ label: 'BUTS', value: 24, highlight: true }, { label: 'PASS.', value: 12 }] },
+    { name: 'Vitinha', position: 'Milieu', isStar: false, stats: [{ label: 'BUTS', value: 7 }, { label: 'PASS.', value: 14, highlight: true }] },
+    { name: 'Donnarumma', position: 'Gardien', isStar: false, stats: [{ label: 'CLEAN S.', value: 14, highlight: true }] },
+  ],
+  latestNews: {
+    category: 'MERCATO',
+    title: 'Le PSG cible un milieu de la Bundesliga',
+    time: 'il y a 4h',
+    source: 'RMC',
+  },
+};

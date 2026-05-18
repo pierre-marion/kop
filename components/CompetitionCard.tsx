@@ -2,6 +2,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius } from '../theme/tokens';
+import { router, useRouter } from 'expo-router/build/exports';
 
 type Highlight = {
   type: 'live' | 'next' | 'derby';
@@ -42,6 +43,8 @@ export default function CompetitionCard({
     }
   };
 
+  const router = useRouter();
+
   const highlightStyle = getHighlightStyle();
 
   // Convertir hex en rgba pour le dégradé
@@ -53,7 +56,7 @@ export default function CompetitionCard({
   };
 
   return (
-    <Pressable style={styles.wrapper}>
+    <Pressable style={styles.wrapper}   onPress={() => router.push(`/competition/${code.toLowerCase()}`)}>
       <LinearGradient
         colors={[hexToRgba(color, 0.25), colors.surface, hexToRgba(color, 0.1)]}
         start={{ x: 0, y: 0 }}
