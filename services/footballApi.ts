@@ -300,3 +300,13 @@ export function pickUpcomingMatches(matches: Match[], limit: number = 6): Match[
 export async function getTeamById(teamId: number): Promise<Team> {
   return fetchFromAPI<Team>(`/teams/${teamId}`);
 }
+
+/**
+ * Prochains matchs d'une équipe (SCHEDULED + TIMED)
+ */
+export async function getTeamUpcomingMatches(teamId: number, limit: number = 5): Promise<Match[]> {
+  const data = await fetchFromAPI<{ matches: Match[] }>(
+    `/teams/${teamId}/matches?status=SCHEDULED,TIMED&limit=${limit}`
+  );
+  return data.matches || [];
+}
