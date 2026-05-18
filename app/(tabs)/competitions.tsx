@@ -5,24 +5,8 @@ import PageHeader from '../../components/PageHeader';
 import CompetitionCard from '../../components/CompetitionCard';
 import { useStandings, useMatchesAroundToday } from '../../hooks/useFootballData';
 import { getTeamColor } from '../../theme/teamColors';
+import { COMPETITION_CONFIGS, type CompetitionConfig } from '../../data/competitionConfigs';
 import type { Match, StandingEntry, CompetitionStandings } from '../../services/footballApi';
-
-type CompetitionConfig = {
-  apiCode: string;       // Code Football-Data (FL1, PL, PD, SA, BL1)
-  displayCode: string;   // Code court affiché dans la pastille
-  name: string;
-  country: string;
-  color: string;
-  logoTextColor: string;
-};
-
-const COMPETITION_CONFIGS: CompetitionConfig[] = [
-  { apiCode: 'FL1', displayCode: 'L1', name: 'Ligue 1', country: '🇫🇷 FRANCE', color: '#003DA5', logoTextColor: '#FFFFFF' },
-  { apiCode: 'PL',  displayCode: 'PL', name: 'Premier League', country: '🇬🇧 ANGLETERRE', color: '#3D195B', logoTextColor: '#FFFFFF' },
-  { apiCode: 'PD',  displayCode: 'LA', name: 'La Liga', country: '🇪🇸 ESPAGNE', color: '#FEBE10', logoTextColor: '#00529F' },
-  { apiCode: 'SA',  displayCode: 'SA', name: 'Serie A', country: '🇮🇹 ITALIE', color: '#008FD7', logoTextColor: '#FFFFFF' },
-  { apiCode: 'BL1', displayCode: 'BL', name: 'Bundesliga', country: '🇩🇪 ALLEMAGNE', color: '#D20515', logoTextColor: '#FFFFFF' },
-];
 
 function formatMatchday(standings?: CompetitionStandings): string {
   if (!standings) return '';
