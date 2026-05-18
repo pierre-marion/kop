@@ -177,11 +177,23 @@ export const mercatoOverview = {
   volumeUnit: 'Mds€',
   variation: '+18%',
   distribution: [
-    { league: 'PL', percent: 35, color: '#3D195B' },
-    { league: 'LIGA', percent: 25, color: '#FEBE10' },
-    { league: 'SA', percent: 20, color: '#008FD7' },
-    { league: 'L1', percent: 12, color: '#003DA5' },
-    { league: 'BL', percent: 8, color: '#D20515' },
+    { league: 'PL', leagueName: 'Premier League', percent: 35, color: '#3D195B', amount: '735M€', deals: 124, biggest: 'Wirtz · 110M€' },
+    { league: 'LIGA', leagueName: 'La Liga', percent: 25, color: '#FEBE10', amount: '525M€', deals: 87, biggest: 'Mbappé · 180M€' },
+    { league: 'SA', leagueName: 'Serie A', percent: 20, color: '#008FD7', amount: '420M€', deals: 96, biggest: 'Lookman · 75M€' },
+    { league: 'L1', leagueName: 'Ligue 1', percent: 12, color: '#003DA5', amount: '252M€', deals: 71, biggest: 'Doué · 50M€' },
+    { league: 'BL', leagueName: 'Bundesliga', percent: 8, color: '#D20515', amount: '168M€', deals: 64, biggest: 'Olise · 65M€' },
+  ],
+  topTransfers: [
+    { player: 'Mbappé', from: 'PSG', to: 'Real Madrid', amount: '180M€', leagueColor: '#FEBE10' },
+    { player: 'Wirtz', from: 'Leverkusen', to: 'Man City', amount: '110M€', leagueColor: '#3D195B' },
+    { player: 'Lookman', from: 'Atalanta', to: 'Chelsea', amount: '75M€', leagueColor: '#3D195B' },
+    { player: 'Olise', from: 'Crystal Palace', to: 'Bayern', amount: '65M€', leagueColor: '#D20515' },
+    { player: 'Doué', from: 'Rennes', to: 'PSG', amount: '50M€', leagueColor: '#003DA5' },
+  ],
+  topBuyers: [
+    { club: 'Manchester City', league: 'PL', amount: '215M€', color: '#6CABDD' },
+    { club: 'Real Madrid', league: 'LIGA', amount: '195M€', color: '#FEBE10' },
+    { club: 'PSG', league: 'L1', amount: '128M€', color: '#004170' },
   ],
 };
 
