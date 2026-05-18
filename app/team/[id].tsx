@@ -59,19 +59,75 @@ function getAge(dateOfBirth: string): number | null {
   return age;
 }
 
+const POSITIONS_FR: Record<string, string> = {
+  'Goalkeeper': 'Gardien',
+  'Defence': 'Défenseur',
+  'Defender': 'Défenseur',
+  'Centre-Back': 'Défenseur central',
+  'Left-Back': 'Latéral gauche',
+  'Right-Back': 'Latéral droit',
+  'Sweeper': 'Libéro',
+  'Midfield': 'Milieu',
+  'Midfielder': 'Milieu',
+  'Defensive Midfield': 'Milieu défensif',
+  'Central Midfield': 'Milieu central',
+  'Attacking Midfield': 'Milieu offensif',
+  'Left Midfield': 'Milieu gauche',
+  'Right Midfield': 'Milieu droit',
+  'Offence': 'Attaquant',
+  'Attacker': 'Attaquant',
+  'Forward': 'Attaquant',
+  'Centre-Forward': 'Avant-centre',
+  'Left Winger': 'Ailier gauche',
+  'Right Winger': 'Ailier droit',
+  'Second Striker': 'Second attaquant',
+  'Manager': 'Entraîneur',
+  'Head Coach': 'Entraîneur principal',
+  'Assistant Coach': 'Entraîneur adjoint',
+};
+
 function translatePosition(p: string): string {
-  switch (p) {
-    case 'Goalkeeper': return 'Gardien';
-    case 'Defence':
-    case 'Defender': return 'Défenseur';
-    case 'Midfield':
-    case 'Midfielder': return 'Milieu';
-    case 'Offence':
-    case 'Attacker':
-    case 'Forward': return 'Attaquant';
-    case 'Manager': return 'Entraîneur';
-    default: return p || '—';
-  }
+  if (!p) return '—';
+  return POSITIONS_FR[p] || p;
+}
+
+type PositionGroup = 'goalkeeper' | 'defender' | 'midfielder' | 'attacker' | 'staff' | 'other';
+
+const GROUP_ORDER: PositionGroup[] = ['goalkeeper', 'defender', 'midfielder', 'attacker', 'staff', 'other'];
+
+const GROUP_LABELS: Record<PositionGroup, string> = {
+  goalkeeper: 'Gardiens',
+  defender: 'Défenseurs',
+  midfielder: 'Milieux',
+  attacker: 'Attaquants',
+  staff: 'Staff',
+  other: 'Autres',
+};
+
+function getPositionGroup(position: string): PositionGroup {
+  if (!position) return 'other';
+  const lower = position.toLowerCase();
+  if (lower.includes('keeper') || lower.includes('goal')) return 'goalkeeper';
+  if (
+    lower.includes('back') ||
+    lower.includes('defence') ||
+    lower.includes('defender') ||
+    lower.includes('sweeper')
+  ) return 'defender';
+  if (lower.includes('midfield')) return 'midfielder';
+  if (
+    lower.includes('forward') ||
+    lower.includes('attack') ||
+    lower.includes('winger') ||
+    lower.includes('striker') ||
+    lower.includes('offence')
+  ) return 'attacker';
+  if (
+    lower.includes('manager') ||
+    lower.includes('coach') ||
+    lower.includes('staff')
+  ) return 'staff';
+  return 'other';
 }
 
 export default function TeamDetailScreen() {
@@ -447,26 +503,30 @@ function SquadTab({
     );
   }
 
-  // Regrouper par poste
-  const groupOrder = ['Goalkeeper', 'Defence', 'Defender', 'Midfield', 'Midfielder', 'Offence', 'Attacker', 'Forward', 'Manager'];
-  const groups = squad.reduce<Record<string, typeof squad>>((acc, p) => {
-    const key = p.position || 'Autre';
-    (acc[key] ??= []).push(p);
+  // Regroupe par poste large + trie chaque groupe par nom
+  const groups = squad.reduce<Record<PositionGroup, typeof squad>>((acc, p) => {
+    const group = getPositionGroup(p.position);
+    (acc[group] ??= []).push(p);
     return acc;
-  }, {});
-  const sortedKeys = Object.keys(groups).sort((a, b) => {
-    const ai = groupOrder.indexOf(a);
-    const bi = groupOrder.indexOf(b);
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-  });
+  }, {} as Record<PositionGroup, typeof squad>);
+
+  // Tri intra-groupe : alphabétique sur le nom
+  for (const key of Object.keys(groups) as PositionGroup[]) {
+    groups[key].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  }
+
+  const visibleGroups = GROUP_ORDER.filter((g) => groups[g] && groups[g].length > 0);
 
   return (
     <View style={styles.section}>
-      {sortedKeys.map((key) => (
-        <View key={key} style={{ marginBottom: 14 }}>
-          <Text style={styles.squadGroupTitle}>{translatePosition(key).toUpperCase()}</Text>
+      {visibleGroups.map((group) => (
+        <View key={group} style={{ marginBottom: 14 }}>
+          <View style={styles.squadGroupHeader}>
+            <Text style={styles.squadGroupTitle}>{GROUP_LABELS[group].toUpperCase()}</Text>
+            <Text style={styles.squadGroupCount}>{groups[group].length}</Text>
+          </View>
           <View style={styles.squadCard}>
-            {groups[key].map((player, index) => (
+            {groups[group].map((player, index) => (
               <View
                 key={player.id}
                 style={[
@@ -479,8 +539,9 @@ function SquadTab({
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.squadName}>{player.name}</Text>
+                  <Text style={styles.squadPosition}>{translatePosition(player.position)}</Text>
                   <View style={styles.squadMetaRow}>
-                    <Flag country={player.nationality} size={12} showFallbackText={false} />
+                    <Flag country={player.nationality} size={11} showFallbackText={false} />
                     <Text style={styles.squadMeta}>
                       {player.nationality || '—'}
                       {getAge(player.dateOfBirth) !== null ? ` · ${getAge(player.dateOfBirth)} ans` : ''}
@@ -681,11 +742,14 @@ const styles = StyleSheet.create({
   playerStatValue: { fontSize: 13, color: colors.text, fontWeight: '600' },
   playerStatLabel: { fontSize: 8, color: colors.textDim },
   // Squad
-  squadGroupTitle: { fontSize: 9, color: colors.textDim, letterSpacing: 1, fontWeight: '600', marginBottom: 6, marginLeft: 4 },
+  squadGroupHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, marginHorizontal: 4 },
+  squadGroupTitle: { fontSize: 9, color: colors.textDim, letterSpacing: 1, fontWeight: '600' },
+  squadGroupCount: { fontSize: 9, color: colors.textDim, fontWeight: '600' },
   squadCard: { backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 0.5, borderColor: colors.border, overflow: 'hidden' },
   squadRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9, paddingHorizontal: 12 },
   squadAvatar: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   squadName: { fontSize: 12, color: colors.text, fontWeight: '500' },
+  squadPosition: { fontSize: 10, color: colors.textMuted, marginTop: 2 },
   squadMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
   squadMeta: { fontSize: 9, color: colors.textMuted },
 });
