@@ -3,9 +3,134 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../theme/tokens';
 import PageHeader from '../../components/PageHeader';
 import CompetitionCard from '../../components/CompetitionCard';
-import { competitions } from '../../data/mockData';
+import { useStandings, useMatchesAroundToday } from '../../hooks/useFootballData';
+import { getTeamColor } from '../../theme/teamColors';
+import type { Match, StandingEntry, CompetitionStandings } from '../../services/footballApi';
+
+type CompetitionConfig = {
+  apiCode: string;       // Code Football-Data (FL1, PL, PD, SA, BL1)
+  displayCode: string;   // Code court affiché dans la pastille
+  name: string;
+  country: string;
+  color: string;
+  logoTextColor: string;
+};
+
+const COMPETITION_CONFIGS: CompetitionConfig[] = [
+  { apiCode: 'FL1', displayCode: 'L1', name: 'Ligue 1', country: '🇫🇷 FRANCE', color: '#003DA5', logoTextColor: '#FFFFFF' },
+  { apiCode: 'PL',  displayCode: 'PL', name: 'Premier League', country: '🇬🇧 ANGLETERRE', color: '#3D195B', logoTextColor: '#FFFFFF' },
+  { apiCode: 'PD',  displayCode: 'LA', name: 'La Liga', country: '🇪🇸 ESPAGNE', color: '#FEBE10', logoTextColor: '#00529F' },
+  { apiCode: 'SA',  displayCode: 'SA', name: 'Serie A', country: '🇮🇹 ITALIE', color: '#008FD7', logoTextColor: '#FFFFFF' },
+  { apiCode: 'BL1', displayCode: 'BL', name: 'Bundesliga', country: '🇩🇪 ALLEMAGNE', color: '#D20515', logoTextColor: '#FFFFFF' },
+];
+
+function formatMatchday(standings?: CompetitionStandings): string {
+  if (!standings) return '';
+  const current = standings.season?.currentMatchday;
+  const teamCount = standings.standings?.find((s) => s.type === 'TOTAL')?.table.length ?? 0;
+  if (!current) return '';
+  if (!teamCount) return `J${current}`;
+  const total = (teamCount - 1) * 2;
+  return `J${current}/${total}`;
+}
+
+function pickLeader(standings?: CompetitionStandings): StandingEntry | undefined {
+  if (!standings) return undefined;
+  const total = standings.standings?.find((s) => s.type === 'TOTAL');
+  return total?.table?.[0];
+}
+
+function formatTime(utcDate: string): string {
+  const d = new Date(utcDate);
+  return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDayShort(utcDate: string): string {
+  const d = new Date(utcDate);
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+  const sameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+  if (sameDay(d, today)) return "Aujourd'hui";
+  if (sameDay(d, tomorrow)) return 'Demain';
+  return d.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit' });
+}
+
+function pickCompetitionHighlight(matches: Match[] | undefined, apiCode: string) {
+  if (!matches) return undefined;
+  const filtered = matches.filter((m) => m.competition.code === apiCode);
+
+  const live = filtered.find((m) => m.status === 'IN_PLAY' || m.status === 'PAUSED');
+  if (live) {
+    const home = live.homeTeam.tla;
+    const away = live.awayTeam.tla;
+    const hs = live.score.fullTime.home ?? 0;
+    const as = live.score.fullTime.away ?? 0;
+    const minute = live.minute ? `${live.minute}'` : 'LIVE';
+    return {
+      type: 'live' as const,
+      label: `${home} ${hs} — ${as} ${away} · ${minute}`,
+    };
+  }
+
+  const now = new Date();
+  const upcoming = filtered
+    .filter((m) => {
+      const d = new Date(m.utcDate);
+      return d >= now && (m.status === 'SCHEDULED' || (m.status as string) === 'TIMED');
+    })
+    .sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime())[0];
+
+  if (upcoming) {
+    return {
+      type: 'next' as const,
+      label: `${formatDayShort(upcoming.utcDate)} · ${upcoming.homeTeam.tla} — ${upcoming.awayTeam.tla} · ${formatTime(upcoming.utcDate)}`,
+    };
+  }
+
+  return undefined;
+}
+
+function CompetitionCardWithData({ config, matches }: { config: CompetitionConfig; matches?: Match[] }) {
+  const { data, isLoading, error } = useStandings(config.apiCode);
+
+  const leaderEntry = pickLeader(data);
+  const leader = leaderEntry
+    ? {
+        code: leaderEntry.team.tla,
+        name: leaderEntry.team.shortName || leaderEntry.team.name,
+        color: getTeamColor(leaderEntry.team.id),
+        points: leaderEntry.points,
+      }
+    : undefined;
+
+  const matchday = formatMatchday(data);
+  const highlight = pickCompetitionHighlight(matches, config.apiCode);
+
+  return (
+    <CompetitionCard
+      code={config.displayCode}
+      apiCode={config.apiCode}
+      name={config.name}
+      country={config.country}
+      matchday={matchday}
+      color={config.color}
+      logoTextColor={config.logoTextColor}
+      leader={leader}
+      highlight={highlight}
+      loading={isLoading}
+      errorMessage={error ? 'Classement indisponible' : undefined}
+    />
+  );
+}
 
 export default function CompetitionsScreen() {
+  // 1 seul appel partagé pour les highlights de toutes les cards
+  const { data: matches } = useMatchesAroundToday();
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -15,17 +140,11 @@ export default function CompetitionsScreen() {
         />
 
         <View style={styles.list}>
-          {competitions.map((comp) => (
-            <CompetitionCard
-              key={comp.id}
-              code={comp.code}
-              name={comp.name}
-              country={comp.country}
-              matchday={comp.matchday}
-              color={comp.color}
-              logoTextColor={comp.logoTextColor}
-              leader={comp.leader}
-              highlight={comp.highlight}
+          {COMPETITION_CONFIGS.map((config) => (
+            <CompetitionCardWithData
+              key={config.apiCode}
+              config={config}
+              matches={matches}
             />
           ))}
         </View>
@@ -44,4 +163,4 @@ const styles = StyleSheet.create({
   list: {
     paddingTop: 12,
   },
-}); 
+});
