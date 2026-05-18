@@ -1,6 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, radius } from '../theme/tokens';
+import { colors } from '../theme/tokens';
 
 export default function Header() {
   return (
@@ -14,14 +14,14 @@ export default function Header() {
       {/* Icônes droite */}
       <View style={styles.icons}>
         <Pressable style={styles.iconButton}>
-          <Ionicons name="search" size={14} color={colors.text} />
+          <Ionicons name="search" size={18} color={colors.text} />
         </Pressable>
         <Pressable style={styles.iconButton}>
-          <Ionicons name="notifications" size={12} color={colors.text} />
+          <Ionicons name="notifications" size={18} color={colors.text} />
           <View style={styles.notifDot} />
         </Pressable>
         <Pressable style={[styles.iconButton, { borderWidth: 0.5, borderColor: colors.border }]}>
-          <Ionicons name="person" size={12} color={colors.text} />
+          <Ionicons name="person" size={18} color={colors.text} />
         </Pressable>
       </View>
     </View>
@@ -39,30 +39,30 @@ const styles = StyleSheet.create({
   logoRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 3,
+    gap: 4,
   },
   logo: {
-    fontSize: 18,
-    fontWeight: '500',
+    fontSize: 28,           // 18 → 28 (plus visible)
+    fontWeight: '600',
     color: colors.text,
-    letterSpacing: -0.5,
-    lineHeight: 18,
+    letterSpacing: -1,
+    lineHeight: 30,
   },
   dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: 7,               // 4 → 7
+    height: 7,
+    borderRadius: 3.5,
     backgroundColor: colors.accent,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   icons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 10,
   },
   iconButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 38,              // 30 → 38 (plus visible aussi)
+    height: 38,
+    borderRadius: 19,
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
@@ -70,11 +70,11 @@ const styles = StyleSheet.create({
   },
   notifDot: {
     position: 'absolute',
-    top: 6,
-    right: 7,
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
+    top: 8,
+    right: 9,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
     backgroundColor: colors.accent,
   },
 });

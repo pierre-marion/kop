@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   teamBlock: {
     alignItems: 'center',
     gap: 8,
-    width: 65,   //80
+    width: 80,   //80
   },
   teamLogo: {
     width: 52,
@@ -174,8 +174,10 @@ const styles = StyleSheet.create({
     lineHeight: 44,
   },
   scoreDash: {
-    fontSize: 16,
-    color: colors.textDim,
+    fontSize: 28,            // 16 → 28
+    color: colors.textMuted, // textDim → textMuted (plus visible)
+    fontWeight: '300',
+    marginTop: -4,           // pour centrer verticalement avec les chiffres
   },
   eventRow: {
     flexDirection: 'row',

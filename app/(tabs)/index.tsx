@@ -65,12 +65,13 @@ const styles = StyleSheet.create({
   },
   matchesScroll: {
     paddingHorizontal: 18,
-    gap: 10,
-    paddingBottom: 12,
+    gap: 12,
+    paddingBottom: 16,
+    paddingTop: 4,
   },
   newsContainer: {
     paddingHorizontal: 18,
-    paddingTop: 6,
-    paddingBottom: 4,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
 });
