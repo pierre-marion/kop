@@ -3,42 +3,111 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../theme/tokens';
 import PageHeader from '../../components/PageHeader';
 import FilterChips from '../../components/FilterChips';
-import ActuFeedItem from '../../components/ActuFeedItem';
-import { actuFilters, actuFeed, actuStats } from '../../data/mockData';
+import HeroArticleCard from '../../components/HeroArticleCard';
+import TransferFlashCard from '../../components/TransferFlashCard';
+import InterviewCard from '../../components/InterviewCard';
+import VideoCard from '../../components/VideoCard';
+import BriefCard from '../../components/BriefCard';
+import DossierCard from '../../components/DossierCard';
+import { actuFilters, actuFeed, actuStats, heroArticle } from '../../data/mockData';
 
 export default function ActuScreen() {
+  // Fonction qui choisit le composant selon le type de la card
+  const renderFeedItem = (item: any) => {
+    switch (item.type) {
+      case 'transfer-flash':
+        return (
+          <TransferFlashCard
+            key={item.id}
+            time={item.time}
+            playerName={item.playerName}
+            amount={item.amount}
+            clubFrom={item.clubFrom}
+            clubTo={item.clubTo}
+            description={item.description}
+            accentColor={item.accentColor}
+          />
+        );
+      case 'interview':
+        return (
+          <InterviewCard
+            key={item.id}
+            playerName={item.playerName}
+            club={item.club}
+            clubGradient={item.clubGradient}
+            quote={item.quote}
+            readTime={item.readTime}
+            source={item.source}
+          />
+        );
+      case 'video':
+        return (
+          <VideoCard
+            key={item.id}
+            title={item.title}
+            duration={item.duration}
+            time={item.time}
+            source={item.source}
+            views={item.views}
+            thumbnailColors={item.thumbnailColors}
+          />
+        );
+      case 'dossier':
+        return (
+          <DossierCard
+            key={item.id}
+            title={item.title}
+            excerpt={item.excerpt}
+            readTime={item.readTime}
+            author={item.author}
+            source={item.source}
+          />
+        );
+      case 'brief':
+      default:
+        return (
+          <BriefCard
+            key={item.id}
+            category={item.category}
+            categoryColor={item.categoryColor}
+            categoryTextColor={item.categoryTextColor}
+            title={item.title}
+            excerpt={item.excerpt}
+            time={item.time}
+            source={item.source}
+          />
+        );
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <PageHeader
           title="Actu"
-          liveBadge={`${actuStats.total} brèves aujourd'hui · MAJ ${actuStats.lastUpdate}`}
+          liveBadge={`${actuStats.total} nouvelles · maj ${actuStats.lastUpdate}`}
         />
 
         <View style={styles.filterContainer}>
           <FilterChips filters={actuFilters} />
         </View>
 
-        <View style={styles.feed}>
-          {actuFeed.map((item) => (
-            <ActuFeedItem
-              key={item.id}
-              isHot={item.isHot}
-              isMercato={item.isMercato}
-              category={item.category}
-              categoryColor={item.categoryColor}
-              categoryTextColor={item.categoryTextColor}
-              title={item.title}
-              excerpt={item.excerpt}
-              time={item.time}
-              source={item.source}
-              views={item.views}
-              comments={item.comments}
-            />
-          ))}
-        </View>
+        {/* Hero article du jour */}
+        <HeroArticleCard
+          label={heroArticle.label}
+          category={heroArticle.category}
+          title={heroArticle.title}
+          source={heroArticle.source}
+          time={heroArticle.time}
+          gradientColors={heroArticle.gradientColors}
+        />
 
-        <Text style={styles.pullToRefresh}>— TIRER POUR CHARGER PLUS —</Text>
+        {/* Section title */}
+        <Text style={styles.sectionLabel}>LE FIL — TEMPS RÉEL</Text>
+
+        {/* Feed mixte */}
+        {actuFeed.map((item) => renderFeedItem(item))}
+
         <View style={{ height: 20 }} />
       </ScrollView>
     </SafeAreaView>
@@ -53,15 +122,12 @@ const styles = StyleSheet.create({
   filterContainer: {
     paddingVertical: 14,
   },
-  feed: {
-    paddingHorizontal: 18,
-  },
-  pullToRefresh: {
-    fontSize: 10,
+  sectionLabel: {
+    fontSize: 11,
     color: colors.textDim,
-    letterSpacing: 1,
-    textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 8,
+    letterSpacing: 1.5,
+    fontWeight: '500',
+    paddingHorizontal: 18,
+    paddingBottom: 8,
   },
 });

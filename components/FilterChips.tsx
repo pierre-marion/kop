@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { ScrollView, Pressable, Text, StyleSheet } from 'react-native';
+import { ScrollView, Pressable, Text, View, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, radius } from '../theme/tokens';
 
 type Filter = {
   id: string;
   label: string;
   count?: number;
+  icon?: string | null;
 };
 
 type Props = {
@@ -30,6 +32,13 @@ export default function FilterChips({ filters, initialActiveId }: Props) {
             onPress={() => setActiveId(filter.id)}
             style={[styles.chip, isActive ? styles.chipActive : styles.chipInactive]}
           >
+            {filter.icon && (
+              <Ionicons
+                name={filter.icon as any}
+                size={12}
+                color={isActive ? colors.accentText : colors.accent}
+              />
+            )}
             <Text style={[styles.label, isActive ? styles.labelActive : styles.labelInactive]}>
               {filter.label}
               {filter.count !== undefined && ` · ${filter.count}`}
@@ -44,12 +53,15 @@ export default function FilterChips({ filters, initialActiveId }: Props) {
 const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 18,
-    gap: 6,
+    gap: 8,
   },
   chip: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: radius.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingVertical: 7,
+    paddingHorizontal: 13,
+    borderRadius: 20,
   },
   chipActive: {
     backgroundColor: colors.accent,
@@ -61,7 +73,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 11,
-    letterSpacing: 0.3,
   },
   labelActive: {
     color: colors.accentText,

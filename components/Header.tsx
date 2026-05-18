@@ -1,8 +1,11 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { colors } from '../theme/tokens';
 
 export default function Header() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
       {/* Logo kop• */}
@@ -13,14 +16,23 @@ export default function Header() {
 
       {/* Icônes droite */}
       <View style={styles.icons}>
-        <Pressable style={styles.iconButton}>
+        <Pressable
+          style={styles.iconButton}
+          onPress={() => router.push('/search')}
+        >
           <Ionicons name="search" size={18} color={colors.text} />
         </Pressable>
-        <Pressable style={styles.iconButton}>
-          <Ionicons name="notifications" size={18} color={colors.text} />
-          <View style={styles.notifDot} />
-        </Pressable>
-        <Pressable style={[styles.iconButton, { borderWidth: 0.5, borderColor: colors.border }]}>
+        <Pressable
+  style={styles.iconButton}
+  onPress={() => router.push('/notifications')}
+>
+  <Ionicons name="notifications" size={18} color={colors.text} />
+  <View style={styles.notifDot} />
+</Pressable>
+        <Pressable
+          style={[styles.iconButton, { borderWidth: 0.5, borderColor: colors.border }]}
+          onPress={() => router.push('/profile')}
+        >
           <Ionicons name="person" size={18} color={colors.text} />
         </Pressable>
       </View>
@@ -42,14 +54,14 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   logo: {
-    fontSize: 28,           // 18 → 28 (plus visible)
+    fontSize: 28,
     fontWeight: '600',
     color: colors.text,
     letterSpacing: -1,
     lineHeight: 30,
   },
   dot: {
-    width: 7,               // 4 → 7
+    width: 7,
     height: 7,
     borderRadius: 3.5,
     backgroundColor: colors.accent,
@@ -60,7 +72,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   iconButton: {
-    width: 38,              // 30 → 38 (plus visible aussi)
+    width: 38,
     height: 38,
     borderRadius: 19,
     backgroundColor: colors.surface,

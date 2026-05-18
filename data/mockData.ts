@@ -71,9 +71,8 @@ export const topScorers = [
   { rank: 2, name: 'Aubameyang', team: 'OM', teamColor: '#009DDC', goals: 19 },
   { rank: 3, name: 'Ben Yedder', team: 'MON', teamColor: '#DA001A', goals: 16 },
 ];
-
 // ============================================
-// PAGE ACTU
+// PAGE ACTU (V3 - formats variés)
 // ============================================
 
 export const actuStats = {
@@ -82,49 +81,82 @@ export const actuStats = {
 };
 
 export const actuFilters = [
-  { id: 'all', label: 'TOUT', count: 23 },
-  { id: 'mercato', label: 'MERCATO', count: 8 },
-  { id: 'l1', label: 'LIGUE 1', count: 5 },
-  { id: 'pl', label: 'PL', count: 4 },
-  { id: 'liga', label: 'LIGA', count: 3 },
-  { id: 'sa', label: 'SERIE A', count: 2 },
-  { id: 'bl', label: 'BUNDESLIGA', count: 1 },
+  { id: 'all', label: 'Tout', icon: 'sparkles' },
+  { id: 'transferts', label: 'Transferts', icon: 'swap-horizontal' },
+  { id: 'entretiens', label: 'Entretiens', icon: 'mic' },
+  { id: 'videos', label: 'Vidéos', icon: 'play' },
+  { id: 'dossiers', label: 'Dossiers', icon: null },
+  { id: 'l1', label: 'Ligue 1', icon: null },
+  { id: 'pl', label: 'Premier L.', icon: null },
+  { id: 'liga', label: 'Liga', icon: null },
 ];
 
+// Le hero du jour
+export const heroArticle = {
+  category: 'MERCATO · OFFICIEL',
+  label: "L'ÉVÉNEMENT",
+  title: 'Mbappé prolonge au Real Madrid jusqu\'en 2030',
+  source: "L'Équipe · Fabrice Hawkins",
+  time: 'il y a 2h',
+  gradientColors: ['rgba(0,65,112,0.6)', 'rgba(237,28,36,0.4)'] as [string, string],
+};
+
+// Feed mélangé de différents formats
 export const actuFeed = [
   {
-    id: 'a1',
-    isHot: true,
-    category: 'CHAUD',
-    title: 'Mbappé prolonge au Real Madrid jusqu\'en 2030',
-    excerpt: "Selon les informations du quotidien sportif, l'attaquant français aurait paraphé son contrat ce matin pour 4 saisons supplémentaires...",
-    time: '12:23',
-    source: 'L\'ÉQUIPE',
-    views: '24k',
-    comments: 312,
-  },
-  {
-    id: 'a2',
-    category: 'LIGUE 1',
-    categoryColor: '#003DA5',
-    categoryTextColor: '#FFFFFF',
-    title: 'PSG : Luis Enrique fait tourner avant la finale de C1',
-    excerpt: 'Le coach espagnol pourrait laisser Dembélé, Vitinha et Hakimi au repos ce soir face à l\'OM...',
+    id: 'f1',
+    type: 'transfer-flash',
     time: '11:48',
-    source: 'RMC',
+    playerName: 'Manuel Ugarte',
+    amount: '45M€',
+    clubFrom: { code: 'MU', name: 'Man United', color: '#DA291C', textColor: '#FBE122' },
+    clubTo: { code: 'PSG', name: 'PSG', color: '#004170', textColor: '#FFFFFF' },
+    description: 'Le milieu uruguayen rejoint Paris pour 5 saisons',
+    accentColor: '#004170',
   },
   {
-    id: 'a3',
+    id: 'f2',
+    type: 'interview',
+    playerName: 'L. Hernandez',
+    club: 'PSG',
+    clubGradient: ['#2a1f3a', '#1a1428'] as [string, string],
+    quote: '« On peut tout gagner cette saison »',
+    readTime: '8 min',
+    source: "L'Équipe",
+  },
+  {
+    id: 'f3',
+    type: 'video',
+    title: 'Les 3 buts qui ont transformé le match PSG — OM',
+    duration: '2:34',
+    time: 'il y a 1h',
+    source: 'Canal+',
+    views: '15k vues',
+    thumbnailColors: ['#004170', '#ED1C24', '#003DA5'] as [string, string, string],
+  },
+  {
+    id: 'f4',
+    type: 'brief',
     category: 'LIGA',
     categoryColor: '#FEBE10',
     categoryTextColor: '#00529F',
     title: 'Vinicius vers la Premier League ? Le Real fixe son prix à 200M€',
     excerpt: 'Manchester City prêt à passer à l\'offensive pour le Brésilien selon les médias espagnols...',
     time: '11:30',
-    source: 'MARCA',
+    source: 'Marca',
   },
   {
-    id: 'a4',
+    id: 'f5',
+    type: 'dossier',
+    title: 'Comment Luis Enrique a réinventé le PSG',
+    excerpt: "Tactique, leadership, gestion d'effectif : enquête sur la méthode du coach espagnol qui fait du Paris SG une machine de guerre européenne.",
+    readTime: '12 min',
+    author: 'Théo Martin',
+    source: 'RMC Sport',
+  },
+  {
+    id: 'f6',
+    type: 'brief',
     category: 'PREMIER L.',
     categoryColor: '#3D195B',
     categoryTextColor: '#FFFFFF',
@@ -132,35 +164,6 @@ export const actuFeed = [
     excerpt: 'Salah de retour dans le onze, Arteta préserve Saliba blessé au mollet...',
     time: '10:55',
     source: 'BBC',
-  },
-  {
-    id: 'a5',
-    isMercato: true,
-    category: 'MERCATO',
-    title: 'Le PSG cible un milieu de la Bundesliga, contacts avancés',
-    excerpt: 'Le club parisien aurait coché le nom d\'un international allemand pour renforcer son entrejeu...',
-    time: '10:12',
-    source: 'SKY',
-  },
-  {
-    id: 'a6',
-    category: 'SERIE A',
-    categoryColor: '#008FD7',
-    categoryTextColor: '#FFFFFF',
-    title: 'Derby de Milan : l\'Inter à la chasse du titre',
-    excerpt: 'Les Nerazzurri peuvent prendre une option décisive ce soir face au rival rossonero...',
-    time: '09:48',
-    source: 'GAZZETTA',
-  },
-  {
-    id: 'a7',
-    category: 'BUNDESLIGA',
-    categoryColor: '#D20515',
-    categoryTextColor: '#FFFFFF',
-    title: 'Klassiker : Bayern et Dortmund pour finir en beauté',
-    excerpt: 'Dernière journée explosive avec le titre encore en jeu pour les Bavarois...',
-    time: '09:22',
-    source: 'KICKER',
   },
 ];
 
@@ -229,3 +232,219 @@ export const transferRumors = [
     trackedDays: 2,
   },
 ];
+
+// ============================================
+// PAGE COMPÉTITIONS
+// ============================================
+
+export const competitions = [
+  {
+    id: 'l1',
+    code: 'L1',
+    name: 'Ligue 1',
+    country: '🇫🇷 FRANCE',
+    matchday: 'J34/38',
+    color: '#003DA5',
+    logoTextColor: '#FFFFFF',
+    leader: { code: 'PSG', name: 'PSG', color: '#004170', points: 79 },
+    highlight: { type: 'live', label: 'PSG 2 — 1 OM · 67\'' },
+  },
+  {
+    id: 'pl',
+    code: 'PL',
+    name: 'Premier League',
+    country: '🇬🇧 ANGLETERRE',
+    matchday: 'J36/38',
+    color: '#3D195B',
+    logoTextColor: '#FFFFFF',
+    leader: { code: 'LIV', name: 'Liverpool', color: '#C8102E', points: 82 },
+    highlight: { type: 'next', label: 'Prochain · LIV — ARS · 21:00' },
+  },
+  {
+    id: 'liga',
+    code: 'LA',
+    name: 'La Liga',
+    country: '🇪🇸 ESPAGNE',
+    matchday: 'J35/38',
+    color: '#FEBE10',
+    logoTextColor: '#00529F',
+    leader: { code: 'RM', name: 'Real Madrid', color: '#FEBE10', points: 85 },
+    highlight: { type: 'derby', label: 'Clásico ce soir · RM — FCB · 21:00' },
+  },
+  {
+    id: 'sa',
+    code: 'SA',
+    name: 'Serie A',
+    country: '🇮🇹 ITALIE',
+    matchday: 'J36/38',
+    color: '#008FD7',
+    logoTextColor: '#FFFFFF',
+    leader: { code: 'INT', name: 'Inter', color: '#010E80', points: 81 },
+    highlight: { type: 'derby', label: 'Derby di Milano · INT — MIL · 20:45' },
+  },
+  {
+    id: 'bl',
+    code: 'BL',
+    name: 'Bundesliga',
+    country: '🇩🇪 ALLEMAGNE',
+    matchday: 'J33/34',
+    color: '#D20515',
+    logoTextColor: '#FFFFFF',
+    leader: { code: 'BAY', name: 'Bayern', color: '#DC052D', points: 76 },
+    highlight: { type: 'derby', label: 'Klassiker · BAY — DOR · 20:30' },
+  },
+];
+
+// ============================================
+// PAGE SEARCH
+// ============================================
+
+export const searchFilters = [
+  { id: 'all', label: 'Tout' },
+  { id: 'teams', label: 'Équipes' },
+  { id: 'players', label: 'Joueurs' },
+  { id: 'competitions', label: 'Compétitions' },
+];
+
+export const searchResults = [
+  {
+    id: 's1',
+    type: 'team',
+    name: 'Paris Saint-Germain',
+    subtitle: 'Équipe · Ligue 1',
+    gradient: ['#004170', '#ED1C24'] as [string, string],
+    code: 'PSG',
+  },
+  {
+    id: 's2',
+    type: 'player',
+    name: 'Ousmane Dembélé',
+    subtitle: 'Joueur · PSG · Attaquant',
+  },
+  {
+    id: 's3',
+    type: 'player',
+    name: 'Luis Enrique',
+    subtitle: 'Entraîneur · PSG',
+  },
+];
+
+export const recentSearches = ['Mbappé', 'Real Madrid', 'Ligue 1'];
+
+export const trendingSearches = [
+  { rank: 1, query: 'Mbappé', volume: '24k' },
+  { rank: 2, query: 'Clásico', volume: '18k' },
+  { rank: 3, query: 'Vinicius', volume: '12k' },
+  { rank: 4, query: 'Real Madrid', volume: '9k' },
+  { rank: 5, query: 'Liverpool', volume: '7k' },
+];
+
+// ============================================
+// PAGE PROFIL
+// ============================================
+
+export const userProfile = {
+  isGuest: true,
+  username: 'Invité',
+  stats: {
+    teamsFollowed: 3,
+    articlesRead: 12,
+    streak: '7j',
+  },
+  followedTeams: [
+    {
+      id: 't1',
+      code: 'PSG',
+      name: 'Paris SG',
+      gradient: ['#004170', '#ED1C24'] as [string, string],
+      notifEnabled: true,
+    },
+    {
+      id: 't2',
+      code: 'RM',
+      name: 'Real Madrid',
+      gradient: ['#FEBE10', '#FEBE10'] as [string, string],
+      logoTextColor: '#00529F',
+      notifEnabled: false,
+    },
+  ],
+};
+
+export const profilePreferences = [
+  { id: 'notif', icon: 'notifications-outline', label: 'Notifications', value: 'Activées' },
+  { id: 'theme', icon: 'color-palette-outline', label: 'Thème', value: 'Sombre' },
+  { id: 'language', icon: 'language-outline', label: 'Langue', value: 'Français' },
+];
+
+export const profileAbout = [
+  { id: 'about', icon: 'information-circle-outline', label: 'À propos de Kop' },
+  { id: 'privacy', icon: 'shield-checkmark-outline', label: 'Confidentialité' },
+  { id: 'terms', icon: 'document-text-outline', label: 'Conditions d\'utilisation' },
+];
+
+
+// ============================================
+// PAGE NOTIFICATIONS
+// ============================================
+
+export const notifFilters = [
+  { id: 'all', label: 'Toutes', count: 7 },
+  { id: 'matches', label: 'Matchs', count: 3 },
+  { id: 'mercato', label: 'Mercato', count: 2 },
+  { id: 'actu', label: 'Actu', count: 2 },
+];
+
+export const notifications = [
+  // AUJOURD'HUI
+  {
+    id: 'n1',
+    section: 'today',
+    type: 'goal',
+    label: 'BUT — PSG 2-1 OM · 63\'',
+    title: 'Dembélé donne l\'avantage au PSG !',
+    time: 'il y a 4min',
+    isUnread: true,
+  },
+  {
+    id: 'n2',
+    section: 'today',
+    type: 'mercato',
+    label: 'MERCATO · OFFICIEL',
+    title: 'Mbappé prolonge au Real Madrid jusqu\'en 2030',
+    time: 'il y a 2h',
+    isUnread: true,
+  },
+  {
+    id: 'n3',
+    section: 'today',
+    type: 'hot',
+    label: 'ARTICLE CHAUD',
+    title: 'Le PSG cible un milieu de la Bundesliga',
+    time: 'il y a 4h',
+    isUnread: true,
+  },
+  // HIER
+  {
+    id: 'n4',
+    section: 'yesterday',
+    type: 'result',
+    label: 'RÉSULTAT',
+    title: 'Real Madrid 3 — 1 Atletico (FT)',
+    time: 'Hier · 22:48',
+    isUnread: false,
+  },
+  {
+    id: 'n5',
+    section: 'yesterday',
+    type: 'reminder',
+    label: 'RAPPEL',
+    title: 'PSG — OM commence dans 1h',
+    time: 'Hier · 20:00',
+    isUnread: false,
+  },
+];
+
+export const notifStats = {
+  newCount: 3,
+  totalUnread: 7,
+};
