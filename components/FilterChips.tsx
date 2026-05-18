@@ -13,10 +13,18 @@ type Filter = {
 type Props = {
   filters: Filter[];
   initialActiveId?: string;
+  activeId?: string;          // contrôlé
+  onChange?: (id: string) => void;
 };
 
-export default function FilterChips({ filters, initialActiveId }: Props) {
-  const [activeId, setActiveId] = useState(initialActiveId || filters[0]?.id);
+export default function FilterChips({ filters, initialActiveId, activeId: controlledId, onChange }: Props) {
+  const [localId, setLocalId] = useState(initialActiveId || filters[0]?.id);
+  const activeId = controlledId ?? localId;
+
+  const handlePress = (id: string) => {
+    setLocalId(id);
+    onChange?.(id);
+  };
 
   return (
     <ScrollView
@@ -29,7 +37,7 @@ export default function FilterChips({ filters, initialActiveId }: Props) {
         return (
           <Pressable
             key={filter.id}
-            onPress={() => setActiveId(filter.id)}
+            onPress={() => handlePress(filter.id)}
             style={[styles.chip, isActive ? styles.chipActive : styles.chipInactive]}
           >
             {filter.icon && (
