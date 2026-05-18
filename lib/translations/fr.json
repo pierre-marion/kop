@@ -1,0 +1,49 @@
+{
+  "common": {
+    "loading": "Chargement…",
+    "error": "Erreur",
+    "retry": "Réessayer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "confirm": "Confirmer",
+    "back": "Retour"
+  },
+  "auth": {
+    "login": "Se connecter",
+    "register": "Créer un compte",
+    "logout": "Se déconnecter",
+    "email": "Email",
+    "password": "Mot de passe",
+    "passwordConfirm": "Confirmer le mot de passe",
+    "noAccount": "Pas encore de compte ?",
+    "haveAccount": "Déjà un compte ?",
+    "createAccount": "Créer un compte",
+    "loginAction": "Se connecter",
+    "registerAction": "Créer mon compte",
+    "errorRequired": "Email et mot de passe requis",
+    "errorPasswordMatch": "Les mots de passe ne correspondent pas",
+    "checkEmail": "Vérifie ta boîte mail pour confirmer ton compte"
+  },
+  "tabs": {
+    "home": "Accueil",
+    "news": "Actu",
+    "mercato": "Mercato",
+    "competitions": "Compétitions"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "appearance": "Apparence",
+    "theme": "Thème",
+    "themeDark": "Sombre",
+    "themeLight": "Clair",
+    "themeAuto": "Système",
+    "language": "Langue",
+    "notifications": "Notifications",
+    "notifLive": "Matchs en direct",
+    "notifGoals": "Buts",
+    "notifNews": "Actualités",
+    "account": "Compte",
+    "favorites": "Mes favoris"
+  }
+}

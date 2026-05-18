@@ -19,6 +19,7 @@ import {
   type QualifZone,
 } from '../../data/competitionConfigs';
 import type { Match, StandingEntry } from '../../services/footballApi';
+import { useFavoritesStore } from '../../stores/favorites';
 
 const competitionTabs = [
   { id: 'standings', label: 'Classement' },
@@ -56,6 +57,39 @@ function formatDayLong(utcDate: string): string {
   if (sameDay(d, yesterday)) return 'Hier';
   if (sameDay(d, tomorrow)) return 'Demain';
   return d.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'short' });
+}
+
+// ============================================
+// BOUTON FAVORI COMPÉTITION
+// ============================================
+
+function FavCompetitionButton({ apiCode, name, emblem }: {
+  apiCode: string;
+  name: string;
+  emblem?: string;
+}) {
+  const isFav = useFavoritesStore((s) => s.isFavorited('competition', apiCode));
+  const toggle = useFavoritesStore((s) => s.toggle);
+
+  return (
+    <Pressable
+      hitSlop={10}
+      onPress={() =>
+        toggle({
+          kind: 'competition',
+          entityId: apiCode,
+          displayName: name,
+          meta: { emblem },
+        })
+      }
+    >
+      <Ionicons
+        name={isFav ? 'star' : 'star-outline'}
+        size={20}
+        color={isFav ? colors.accent : colors.text}
+      />
+    </Pressable>
+  );
 }
 
 // ============================================
@@ -497,9 +531,7 @@ export default function CompetitionDetailScreen() {
           <Pressable onPress={() => router.back()} hitSlop={10}>
             <Ionicons name="arrow-back" size={22} color={colors.text} />
           </Pressable>
-          <Pressable hitSlop={10}>
-            <Ionicons name="star-outline" size={20} color={colors.text} />
-          </Pressable>
+          <FavCompetitionButton apiCode={apiCode} name={config.name} emblem={standingsData?.competition?.emblem} />
         </View>
 
         <LinearGradient

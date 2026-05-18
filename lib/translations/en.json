@@ -1,0 +1,49 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "error": "Error",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back"
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Create account",
+    "logout": "Log out",
+    "email": "Email",
+    "password": "Password",
+    "passwordConfirm": "Confirm password",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "createAccount": "Create account",
+    "loginAction": "Log in",
+    "registerAction": "Create my account",
+    "errorRequired": "Email and password required",
+    "errorPasswordMatch": "Passwords don't match",
+    "checkEmail": "Check your inbox to confirm your account"
+  },
+  "tabs": {
+    "home": "Home",
+    "news": "News",
+    "mercato": "Mercato",
+    "competitions": "Competitions"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeDark": "Dark",
+    "themeLight": "Light",
+    "themeAuto": "System",
+    "language": "Language",
+    "notifications": "Notifications",
+    "notifLive": "Live matches",
+    "notifGoals": "Goals",
+    "notifNews": "News",
+    "account": "Account",
+    "favorites": "My favorites"
+  }
+}

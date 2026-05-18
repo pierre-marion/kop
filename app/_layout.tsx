@@ -1,40 +1,80 @@
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../lib/i18n';
+import { ThemeProvider, useIsDark } from '../theme/ThemeProvider';
+import { useAuthStore } from '../stores/auth';
+import { useSettingsStore } from '../stores/settings';
+import { useFavoritesStore } from '../stores/favorites';
 
-// Config React Query optimisée pour API limitée (10 req/min)
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Data considérée fraîche pendant 60 sec → pas de refetch inutile
       staleTime: 60 * 1000,
-      // Garde en cache 5 min → si on revient sur l'écran, pas de nouveau call
       gcTime: 5 * 60 * 1000,
-      // Pas de refetch automatique au focus (sinon ça consomme nos 10/min)
       refetchOnWindowFocus: false,
-      // 2 retries en cas d'erreur réseau (avec backoff exponentiel)
       retry: 2,
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
     },
   },
 });
 
+function AppContent() {
+  const isDark = useIsDark();
+  const initializeAuth = useAuthStore((s) => s.initialize);
+  const session = useAuthStore((s) => s.session);
+  const hydrateSettings = useSettingsStore((s) => s.hydrateFromProfile);
+  const hydrateFavorites = useFavoritesStore((s) => s.hydrateFromCloud);
+  const language = useSettingsStore((s) => s.language);
+
+  // Init auth au démarrage
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  // Synchro lorsque la session change (login/logout)
+  useEffect(() => {
+    if (session) {
+      hydrateSettings();
+      hydrateFavorites();
+    }
+  }, [session, hydrateSettings, hydrateFavorites]);
+
+  // Langue i18n synchro avec le store
+  useEffect(() => {
+    if (i18n.language !== language) i18n.changeLanguage(language);
+  }, [language]);
+
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="search" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="profile" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="notifications" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="match/[id]" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="competition/[id]" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="team/[id]" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="auth" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+      </Stack>
+    </>
+  );
+}
+
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
-        <StatusBar style="light" />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="search" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
-          <Stack.Screen name="profile" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
-          <Stack.Screen name="notifications" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
-          <Stack.Screen name="match/[id]" options={{ animation: 'slide_from_right' }} />
-          <Stack.Screen name="competition/[id]" options={{ animation: 'slide_from_right' }} />
-          <Stack.Screen name="team/[id]" options={{ animation: 'slide_from_right' }} />
-        </Stack>
-      </SafeAreaProvider>
+      <I18nextProvider i18n={i18n}>
+        <ThemeProvider>
+          <SafeAreaProvider>
+            <AppContent />
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </I18nextProvider>
     </QueryClientProvider>
   );
 }

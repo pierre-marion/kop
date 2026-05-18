@@ -16,6 +16,7 @@ import {
 } from '../../hooks/useFootballData';
 import { getTeamColor, getTeamGradient } from '../../theme/teamColors';
 import { getCompetitionConfig } from '../../data/competitionConfigs';
+import { useFavoritesStore } from '../../stores/favorites';
 import type { Match } from '../../services/footballApi';
 
 const teamTabs = [
@@ -164,10 +165,7 @@ export default function TeamDetailScreen() {
             <Pressable hitSlop={10}>
               <Ionicons name="share-outline" size={20} color={colors.text} />
             </Pressable>
-            <Pressable style={styles.followButton}>
-              <Ionicons name="add" size={12} color={colors.accentText} />
-              <Text style={styles.followText}>SUIVRE</Text>
-            </Pressable>
+            <FollowTeamButton teamId={teamId!} teamName={team.shortName || team.name} crest={team.crest} tla={team.tla} />
           </View>
         </View>
 
@@ -282,6 +280,43 @@ export default function TeamDetailScreen() {
         <View style={{ height: 30 }} />
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+// ============================================
+// BOUTON SUIVRE
+// ============================================
+
+function FollowTeamButton({ teamId, teamName, crest, tla }: {
+  teamId: number;
+  teamName: string;
+  crest?: string;
+  tla: string;
+}) {
+  const isFav = useFavoritesStore((s) => s.isFavorited('team', String(teamId)));
+  const toggle = useFavoritesStore((s) => s.toggle);
+
+  return (
+    <Pressable
+      style={[styles.followButton, isFav && styles.followButtonActive]}
+      onPress={() =>
+        toggle({
+          kind: 'team',
+          entityId: String(teamId),
+          displayName: teamName,
+          meta: { crest, tla },
+        })
+      }
+    >
+      <Ionicons
+        name={isFav ? 'checkmark' : 'add'}
+        size={12}
+        color={isFav ? colors.accent : colors.accentText}
+      />
+      <Text style={[styles.followText, isFav && { color: colors.accent }]}>
+        {isFav ? 'SUIVI' : 'SUIVRE'}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -582,6 +617,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 14, paddingBottom: 8 },
   headerActions: { flexDirection: 'row', gap: 10, alignItems: 'center' },
   followButton: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.accent, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20 },
+  followButtonActive: { backgroundColor: 'rgba(204,255,0,0.12)', borderWidth: 1, borderColor: colors.accent },
   followText: { fontSize: 10, color: colors.accentText, fontWeight: '700' },
   centerState: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 24 },
   centerStateText: { fontSize: 13, color: colors.textMuted, textAlign: 'center' },
