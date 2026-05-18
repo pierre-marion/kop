@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   identityHalo: { position: 'absolute', top: -30, right: -30, width: 140, height: 140, borderRadius: 70 },
   identityRow: { flexDirection: 'row', gap: 14, alignItems: 'center', position: 'relative', zIndex: 1 },
   compLogo: { width: 60, height: 60, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  compLogoEmblem: { width: 60, height: 60, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.06)', padding: 6, alignItems: 'center', justifyContent: 'center' },
+  compLogoEmblem: { width: 60, height: 60, borderRadius: 14, backgroundColor: '#FFFFFF', padding: 8, alignItems: 'center', justifyContent: 'center' },
   compLogoText: { fontSize: 22, fontWeight: '700' },
   compName: { fontSize: 22, color: colors.text, fontWeight: '600', letterSpacing: -0.5 },
   compSubtitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
