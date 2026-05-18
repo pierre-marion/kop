@@ -1,8 +1,8 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius } from '../theme/tokens';
-import { router, useRouter } from 'expo-router/build/exports';
+import { useRouter } from 'expo-router';
 
 type Highlight = {
   type: 'live' | 'next' | 'derby';
@@ -10,18 +10,24 @@ type Highlight = {
 };
 
 type Props = {
+  /** Code court affiché dans la pastille (ex: "L1", "PL") */
   code: string;
+  /** Code Football-Data utilisé pour la navigation (ex: "FL1", "PL", "PD") */
+  apiCode: string;
   name: string;
   country: string;
   matchday: string;
   color: string;
   logoTextColor: string;
-  leader: { code: string; name: string; color: string; points: number };
-  highlight: Highlight;
+  leader?: { code: string; name: string; color: string; points: number };
+  highlight?: Highlight;
+  loading?: boolean;
+  errorMessage?: string;
 };
 
 export default function CompetitionCard({
   code,
+  apiCode,
   name,
   country,
   matchday,
@@ -29,10 +35,13 @@ export default function CompetitionCard({
   logoTextColor,
   leader,
   highlight,
+  loading,
+  errorMessage,
 }: Props) {
-  // Icône et couleur du highlight selon le type
-  const getHighlightStyle = () => {
-    switch (highlight.type) {
+  const router = useRouter();
+
+  const getHighlightStyle = (type: Highlight['type']) => {
+    switch (type) {
       case 'live':
         return { icon: 'radio-button-on' as const, iconColor: colors.accent, isLive: true };
       case 'derby':
@@ -43,11 +52,6 @@ export default function CompetitionCard({
     }
   };
 
-  const router = useRouter();
-
-  const highlightStyle = getHighlightStyle();
-
-  // Convertir hex en rgba pour le dégradé
   const hexToRgba = (hex: string, alpha: number) => {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -55,19 +59,22 @@ export default function CompetitionCard({
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
+  const highlightStyle = highlight ? getHighlightStyle(highlight.type) : null;
+
   return (
-    <Pressable style={styles.wrapper}   onPress={() => router.push(`/competition/${code.toLowerCase()}`)}>
+    <Pressable
+      style={styles.wrapper}
+      onPress={() => router.push(`/competition/${apiCode}`)}
+    >
       <LinearGradient
         colors={[hexToRgba(color, 0.25), colors.surface, hexToRgba(color, 0.1)]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.card}
       >
-        {/* Halo radial en haut à droite */}
         <View style={[styles.halo, { backgroundColor: hexToRgba(color, 0.4) }]} />
 
         <View style={styles.content}>
-          {/* En-tête : logo + nom + flèche */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
               <View style={[styles.logoBox, { backgroundColor: color }]}>
@@ -76,41 +83,65 @@ export default function CompetitionCard({
               <View>
                 <Text style={styles.name}>{name}</Text>
                 <Text style={styles.country}>
-                  {country} · {matchday}
+                  {country}
+                  {matchday ? ` · ${matchday}` : ''}
                 </Text>
               </View>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.textDim} />
           </View>
 
-          {/* Leader */}
+          {/* Leader (ou loading / error) */}
           <View style={styles.leaderSection}>
             <Text style={styles.leaderLabel}>LEADER</Text>
-            <View style={styles.leaderRow}>
-              <View style={[styles.leaderDot, { backgroundColor: leader.color }]} />
-              <Text style={styles.leaderName}>{leader.name}</Text>
-              <Text style={styles.leaderPoints}>{leader.points} pts</Text>
-            </View>
+            {loading ? (
+              <View style={styles.loadingRow}>
+                <ActivityIndicator size="small" color={colors.accent} />
+                <Text style={styles.loadingText}>Chargement…</Text>
+              </View>
+            ) : errorMessage ? (
+              <View style={styles.errorRow}>
+                <Ionicons name="warning-outline" size={12} color={colors.textMuted} />
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            ) : leader ? (
+              <View style={styles.leaderRow}>
+                <View style={[styles.leaderDot, { backgroundColor: leader.color }]} />
+                <Text style={styles.leaderName}>{leader.name}</Text>
+                <Text style={styles.leaderPoints}>{leader.points} pts</Text>
+              </View>
+            ) : (
+              <Text style={styles.errorText}>—</Text>
+            )}
           </View>
 
           {/* Highlight (live, derby, next) */}
-          <View style={styles.highlightRow}>
-            {highlightStyle.isLive ? (
-              <View style={styles.liveDot} />
-            ) : (
-              <Ionicons
-                name={highlightStyle.icon}
-                size={11}
-                color={highlightStyle.iconColor}
-              />
-            )}
-            <Text style={styles.highlightText}>
-              {highlightStyle.isLive && (
-                <Text style={{ color: colors.accent, fontWeight: '500' }}>LIVE </Text>
+          {highlight && highlightStyle ? (
+            <View style={styles.highlightRow}>
+              {highlightStyle.isLive ? (
+                <View style={styles.liveDot} />
+              ) : (
+                <Ionicons
+                  name={highlightStyle.icon}
+                  size={11}
+                  color={highlightStyle.iconColor}
+                />
               )}
-              {highlight.label.replace('LIVE ', '')}
-            </Text>
-          </View>
+              <Text style={styles.highlightText} numberOfLines={1}>
+                {highlightStyle.isLive && (
+                  <Text style={{ color: colors.accent, fontWeight: '500' }}>LIVE </Text>
+                )}
+                {highlight.label.replace('LIVE ', '')}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.highlightRow}>
+              <Ionicons name="time-outline" size={11} color={colors.textDim} />
+              <Text style={styles.highlightTextDim}>
+                {loading ? '—' : 'Pas de match imminent'}
+              </Text>
+            </View>
+          )}
         </View>
       </LinearGradient>
     </Pressable>
@@ -206,6 +237,26 @@ const styles = StyleSheet.create({
     color: colors.accent,
     fontWeight: '600',
   },
+  loadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    height: 18,
+  },
+  loadingText: {
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+  errorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    height: 18,
+  },
+  errorText: {
+    fontSize: 11,
+    color: colors.textMuted,
+  },
   highlightRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -223,5 +274,11 @@ const styles = StyleSheet.create({
   highlightText: {
     fontSize: 10,
     color: colors.text,
+    flex: 1,
+  },
+  highlightTextDim: {
+    fontSize: 10,
+    color: colors.textDim,
+    flex: 1,
   },
 });
