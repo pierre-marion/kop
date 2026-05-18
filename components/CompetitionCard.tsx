@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius } from '../theme/tokens';
 import { useRouter } from 'expo-router';
+import Flag from './Flag';
 
 type Highlight = {
   type: 'live' | 'next' | 'derby';
@@ -16,6 +17,7 @@ type Props = {
   apiCode: string;
   name: string;
   country: string;
+  countryFlag?: string;   // Nom anglais pour récupérer le vrai drapeau
   matchday: string;
   color: string;
   logoTextColor: string;
@@ -30,6 +32,7 @@ export default function CompetitionCard({
   apiCode,
   name,
   country,
+  countryFlag,
   matchday,
   color,
   logoTextColor,
@@ -82,10 +85,13 @@ export default function CompetitionCard({
               </View>
               <View>
                 <Text style={styles.name}>{name}</Text>
-                <Text style={styles.country}>
-                  {country}
-                  {matchday ? ` · ${matchday}` : ''}
-                </Text>
+                <View style={styles.countryRow}>
+                  {countryFlag && <Flag country={countryFlag} size={11} showFallbackText={false} />}
+                  <Text style={styles.country}>
+                    {country}
+                    {matchday ? ` · ${matchday}` : ''}
+                  </Text>
+                </View>
               </View>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.textDim} />
@@ -201,11 +207,16 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontWeight: '600',
   },
+  countryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 2,
+  },
   country: {
     fontSize: 9,
     color: colors.textMuted,
     letterSpacing: 0.5,
-    marginTop: 1,
   },
   leaderSection: {
     marginBottom: 10,

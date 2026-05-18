@@ -8,6 +8,7 @@ import { colors, radius } from '../../theme/tokens';
 import InnerTabs from '../../components/InnerTabs';
 import FormDots from '../../components/FormDots';
 import TeamLogo from '../../components/TeamLogo';
+import Flag from '../../components/Flag';
 import { useStandings, useTopScorers, useMatchesAroundToday } from '../../hooks/useFootballData';
 import { getTeamColor } from '../../theme/teamColors';
 import {
@@ -511,9 +512,12 @@ export default function CompetitionDetailScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.compName}>{config.name}</Text>
-              <Text style={styles.compSubtitle}>
-                {config.country} · {getCurrentSeasonLabel()}
-              </Text>
+              <View style={styles.compSubtitleRow}>
+                <Flag country={config.countryFlag} size={12} showFallbackText={false} />
+                <Text style={styles.compSubtitle}>
+                  {config.country} · {getCurrentSeasonLabel()}
+                </Text>
+              </View>
               <View style={styles.matchdayRow}>
                 <View style={styles.matchdayBadge}>
                   <Text style={styles.matchdayBadgeText}>{matchdayLabel}</Text>
@@ -560,7 +564,8 @@ const styles = StyleSheet.create({
   compLogo: { width: 60, height: 60, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   compLogoText: { fontSize: 22, fontWeight: '700' },
   compName: { fontSize: 22, color: colors.text, fontWeight: '600', letterSpacing: -0.5 },
-  compSubtitle: { fontSize: 11, color: colors.textMuted, marginTop: 3 },
+  compSubtitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  compSubtitle: { fontSize: 11, color: colors.textMuted },
   matchdayRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
   matchdayBadge: { backgroundColor: 'rgba(204,255,0,0.15)', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 4 },
   matchdayBadgeText: { fontSize: 9, color: colors.accent, fontWeight: '700', letterSpacing: 0.5 },

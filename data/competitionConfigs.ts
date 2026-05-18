@@ -5,17 +5,18 @@ export type CompetitionConfig = {
   apiCode: 'FL1' | 'PL' | 'PD' | 'SA' | 'BL1';
   displayCode: string;   // Pastille (L1, PL, LA, SA, BL)
   name: string;
-  country: string;
+  country: string;        // Nom pays affiché (sans emoji)
+  countryFlag: string;    // Nom anglais utilisé par getFlagUrl (pour récupérer le drapeau réel)
   color: string;
   logoTextColor: string;
 };
 
 export const COMPETITION_CONFIGS: CompetitionConfig[] = [
-  { apiCode: 'FL1', displayCode: 'L1', name: 'Ligue 1', country: '🇫🇷 FRANCE', color: '#003DA5', logoTextColor: '#FFFFFF' },
-  { apiCode: 'PL',  displayCode: 'PL', name: 'Premier League', country: '🇬🇧 ANGLETERRE', color: '#3D195B', logoTextColor: '#FFFFFF' },
-  { apiCode: 'PD',  displayCode: 'LA', name: 'La Liga', country: '🇪🇸 ESPAGNE', color: '#FEBE10', logoTextColor: '#00529F' },
-  { apiCode: 'SA',  displayCode: 'SA', name: 'Serie A', country: '🇮🇹 ITALIE', color: '#008FD7', logoTextColor: '#FFFFFF' },
-  { apiCode: 'BL1', displayCode: 'BL', name: 'Bundesliga', country: '🇩🇪 ALLEMAGNE', color: '#D20515', logoTextColor: '#FFFFFF' },
+  { apiCode: 'FL1', displayCode: 'L1', name: 'Ligue 1', country: 'FRANCE', countryFlag: 'France', color: '#003DA5', logoTextColor: '#FFFFFF' },
+  { apiCode: 'PL',  displayCode: 'PL', name: 'Premier League', country: 'ANGLETERRE', countryFlag: 'England', color: '#3D195B', logoTextColor: '#FFFFFF' },
+  { apiCode: 'PD',  displayCode: 'LA', name: 'La Liga', country: 'ESPAGNE', countryFlag: 'Spain', color: '#FEBE10', logoTextColor: '#00529F' },
+  { apiCode: 'SA',  displayCode: 'SA', name: 'Serie A', country: 'ITALIE', countryFlag: 'Italy', color: '#008FD7', logoTextColor: '#FFFFFF' },
+  { apiCode: 'BL1', displayCode: 'BL', name: 'Bundesliga', country: 'ALLEMAGNE', countryFlag: 'Germany', color: '#D20515', logoTextColor: '#FFFFFF' },
 ];
 
 export function getCompetitionConfig(apiCode: string): CompetitionConfig | undefined {

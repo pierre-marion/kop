@@ -100,6 +100,7 @@ function CompetitionCardWithData({ config, matches }: { config: CompetitionConfi
       apiCode={config.apiCode}
       name={config.name}
       country={config.country}
+      countryFlag={config.countryFlag}
       matchday={matchday}
       color={config.color}
       logoTextColor={config.logoTextColor}
