@@ -140,13 +140,18 @@ kop/
 
 ## 🗺️ Roadmap
 
-Voir [ROADMAP.md](./ROADMAP.md) pour le détail des versions et fonctionnalités prévues.
+Voir [docs/product/ROADMAP.md](./docs/product/ROADMAP.md) pour le détail des versions et fonctionnalités prévues.
 
 ---
 
 ## 📝 Conventions
 
-Voir [CONVENTIONS.md](./CONVENTIONS.md) pour les règles de nommage, de commit et de structure.
+Voir [docs/technical/CONVENTIONS.md](./docs/technical/CONVENTIONS.md) pour les règles de nommage, de commit et de structure.
+
+Documentation complète : [docs/](./docs/)
+- **Produit** : [PITCH](./docs/product/PITCH.md) · [ROADMAP](./docs/product/ROADMAP.md) · [PERSONAS](./docs/product/PERSONAS.md) · [USER_FLOWS](./docs/product/USER_FLOWS.md) · [LAUNCH_STRATEGY](./docs/product/LAUNCH_STRATEGY.md)
+- **Design** : [DESIGN_SYSTEM](./docs/design/DESIGN_SYSTEM.md)
+- **Technique** : [STACK](./docs/technical/STACK.md) · [API](./docs/technical/API.md) · [CONVENTIONS](./docs/technical/CONVENTIONS.md) · [CHANGELOG](./docs/technical/CHANGELOG.md) · [SUPABASE_SETUP](./docs/technical/SUPABASE_SETUP.md)
 
 ---
 
