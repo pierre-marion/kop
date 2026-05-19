@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../theme/tokens';
@@ -10,8 +11,31 @@ import VideoCard from '../../components/VideoCard';
 import BriefCard from '../../components/BriefCard';
 import DossierCard from '../../components/DossierCard';
 import { actuFilters, actuFeed, actuStats, heroArticle } from '../../data/mockData';
+import { useFavoritesStore } from '../../stores/favorites';
+import { buildFavoriteClubMatcher } from '../../lib/favoritesMatch';
 
 export default function ActuScreen() {
+  const favorites = useFavoritesStore((s) => s.items);
+
+  // Split du feed : items impliquant un favori vs le reste
+  const { favoriteItems, otherItems } = useMemo(() => {
+    const matches = buildFavoriteClubMatcher(favorites);
+    const fav: typeof actuFeed = [];
+    const other: typeof actuFeed = [];
+    for (const item of actuFeed) {
+      const ids: Array<string | null | undefined> = [
+        (item as any).club,
+        (item as any).clubFrom?.code,
+        (item as any).clubFrom?.name,
+        (item as any).clubTo?.code,
+        (item as any).clubTo?.name,
+      ];
+      if (matches(ids)) fav.push(item);
+      else other.push(item);
+    }
+    return { favoriteItems: fav, otherItems: other };
+  }, [favorites]);
+
   // Fonction qui choisit le composant selon le type de la card
   const renderFeedItem = (item: any) => {
     switch (item.type) {
@@ -102,11 +126,19 @@ export default function ActuScreen() {
           gradientColors={heroArticle.gradientColors}
         />
 
+        {/* Section "Tes équipes" — uniquement si des favoris matchent le feed */}
+        {favoriteItems.length > 0 && (
+          <>
+            <Text style={styles.sectionLabel}>TES ÉQUIPES</Text>
+            {favoriteItems.map((item) => renderFeedItem(item))}
+          </>
+        )}
+
         {/* Section title */}
         <Text style={styles.sectionLabel}>LE FIL — TEMPS RÉEL</Text>
 
         {/* Feed mixte */}
-        {actuFeed.map((item) => renderFeedItem(item))}
+        {otherItems.map((item) => renderFeedItem(item))}
 
         <View style={{ height: 20 }} />
       </ScrollView>

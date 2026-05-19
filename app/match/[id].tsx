@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, Pressable, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, Pressable, StyleSheet, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -42,7 +42,14 @@ export default function MatchDetailScreen() {
             <Ionicons name="arrow-back" size={22} color={colors.text} />
           </Pressable>
           <View style={styles.headerActions}>
-            <Pressable hitSlop={10}>
+            <Pressable
+              hitSlop={10}
+              onPress={() =>
+                Share.share({
+                  message: `${match.homeTeam.name} ${match.homeTeam.score} - ${match.awayTeam.score} ${match.awayTeam.name} · ${match.competition} sur Kop ⚽`,
+                }).catch(() => {})
+              }
+            >
               <Ionicons name="share-outline" size={20} color={colors.text} />
             </Pressable>
             <Pressable hitSlop={10}>

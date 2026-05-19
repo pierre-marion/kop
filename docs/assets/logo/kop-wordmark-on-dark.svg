@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="500" height="200">
+  <rect width="500" height="200" rx="24" fill="#0A0A0B"/>
+  <text x="250" y="130" fill="#FAFAFA" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="96" font-weight="600" letter-spacing="-4.5" text-anchor="middle">kop</text>
+  <circle cx="368" cy="134" r="9" fill="#CCFF00"/>
+</svg>

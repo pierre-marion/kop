@@ -8,7 +8,7 @@ import { colors, radius } from '../theme/tokens';
 import FilterChips from '../components/FilterChips';
 import TeamLogo from '../components/TeamLogo';
 import { useMatchesAroundToday } from '../hooks/useFootballData';
-import { getStandings, type Match, type StandingEntry } from '../services/footballApi';
+import { getStandings, type Match } from '../services/footballApi';
 import { COMPETITION_CONFIGS, type CompetitionConfig } from '../data/competitionConfigs';
 import { getTeamColor } from '../theme/teamColors';
 import { useRecentSearchesStore } from '../stores/recentSearches';
@@ -59,10 +59,23 @@ export default function SearchScreen() {
   const hasQuery = query.trim().length > 0;
   const nq = normalize(query);
 
-  // Toutes les équipes des 5 grands championnats (déduplique par id)
-  const allTeams = useMemo(() => {
+  // Type unifié pour les équipes trouvées via standings OU via matchs (fallback rapide)
+  type SearchTeam = {
+    id: number;
+    name: string;
+    shortName: string;
+    tla: string;
+    crest: string;
+    competitionCode: string;
+    // Présents uniquement si on vient des standings
+    position?: number;
+    points?: number;
+  };
+
+  // Équipes depuis les standings (avec classement + points)
+  const teamsFromStandings = useMemo(() => {
     const seen = new Set<number>();
-    const list: { entry: StandingEntry; competitionCode: string }[] = [];
+    const list: SearchTeam[] = [];
     standingsQueries.forEach((q, i) => {
       const table = q.data?.standings?.find((s) => s.type === 'TOTAL')?.table;
       if (!table) return;
@@ -70,20 +83,60 @@ export default function SearchScreen() {
       for (const entry of table) {
         if (!seen.has(entry.team.id)) {
           seen.add(entry.team.id);
-          list.push({ entry, competitionCode: code });
+          list.push({
+            id: entry.team.id,
+            name: entry.team.name,
+            shortName: entry.team.shortName || entry.team.name,
+            tla: entry.team.tla,
+            crest: entry.team.crest,
+            competitionCode: code,
+            position: entry.position,
+            points: entry.points,
+          });
         }
       }
     });
     return list;
   }, [standingsQueries]);
 
+  // Équipes vues dans les matchs (fallback rapide en attendant les standings)
+  const teamsFromMatches = useMemo(() => {
+    const seen = new Set<number>();
+    const list: SearchTeam[] = [];
+    if (!allMatches.data) return list;
+    for (const m of allMatches.data) {
+      for (const team of [m.homeTeam, m.awayTeam]) {
+        if (!seen.has(team.id)) {
+          seen.add(team.id);
+          list.push({
+            id: team.id,
+            name: team.name,
+            shortName: team.shortName || team.name,
+            tla: team.tla,
+            crest: team.crest,
+            competitionCode: m.competition.code,
+          });
+        }
+      }
+    }
+    return list;
+  }, [allMatches.data]);
+
+  // Fusion : on privilégie les données standings (position/points) si dispo, sinon fallback matchs
+  const allTeams = useMemo(() => {
+    const byId = new Map<number, SearchTeam>();
+    for (const t of teamsFromMatches) byId.set(t.id, t);
+    for (const t of teamsFromStandings) byId.set(t.id, t); // override avec données plus complètes
+    return [...byId.values()];
+  }, [teamsFromMatches, teamsFromStandings]);
+
   const filteredTeams = useMemo(() => {
     if (!hasQuery) return [];
     return allTeams
-      .filter(({ entry }) => {
-        const name = normalize(entry.team.name);
-        const shortName = normalize(entry.team.shortName || '');
-        const tla = normalize(entry.team.tla);
+      .filter((t) => {
+        const name = normalize(t.name);
+        const shortName = normalize(t.shortName);
+        const tla = normalize(t.tla);
         return name.includes(nq) || shortName.includes(nq) || tla.includes(nq);
       })
       .slice(0, 15);
@@ -233,25 +286,28 @@ export default function SearchScreen() {
         {hasQuery && showTeams && filteredTeams.length > 0 && (
           <View style={styles.section}>
             {activeFilter === 'all' && <Text style={styles.sectionLabel}>ÉQUIPES</Text>}
-            {filteredTeams.map(({ entry, competitionCode }) => {
-              const compConfig = COMPETITION_CONFIGS.find((c) => c.apiCode === competitionCode);
+            {filteredTeams.map((t) => {
+              const compConfig = COMPETITION_CONFIGS.find((c) => c.apiCode === t.competitionCode);
+              const hasRanking = t.position != null && t.points != null;
               return (
                 <Pressable
-                  key={entry.team.id}
+                  key={t.id}
                   style={styles.resultCard}
-                  onPress={() => handleTeamPress(entry.team.id, entry.team.shortName || entry.team.name)}
+                  onPress={() => handleTeamPress(t.id, t.shortName)}
                 >
                   <TeamLogo
-                    url={entry.team.crest}
-                    tla={entry.team.tla}
-                    fallbackBg={getTeamColor(entry.team.id)}
+                    url={t.crest}
+                    tla={t.tla}
+                    fallbackBg={getTeamColor(t.id)}
                     fallbackText="#FFFFFF"
                     size={38}
                   />
                   <View style={styles.resultContent}>
-                    <Text style={styles.resultName}>{entry.team.shortName || entry.team.name}</Text>
+                    <Text style={styles.resultName}>{t.shortName}</Text>
                     <Text style={styles.resultSubtitle}>
-                      {compConfig?.name || competitionCode} · {entry.position}e · {entry.points} pts
+                      {hasRanking
+                        ? `${compConfig?.name || t.competitionCode} · ${t.position}e · ${t.points} pts`
+                        : compConfig?.name || t.competitionCode}
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={16} color={colors.textDim} />

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ScrollView, View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text, Pressable, StyleSheet, ActivityIndicator, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -218,7 +218,14 @@ export default function TeamDetailScreen() {
             <Ionicons name="arrow-back" size={22} color={colors.text} />
           </Pressable>
           <View style={styles.headerActions}>
-            <Pressable hitSlop={10}>
+            <Pressable
+              hitSlop={10}
+              onPress={() =>
+                Share.share({
+                  message: `${team.name}${competitionConfig ? ` · ${competitionConfig.name}` : ''} sur Kop ⚽`,
+                }).catch(() => {})
+              }
+            >
               <Ionicons name="share-outline" size={20} color={colors.text} />
             </Pressable>
             <FollowTeamButton teamId={teamId!} teamName={team.shortName || team.name} crest={team.crest} tla={team.tla} />
@@ -393,6 +400,7 @@ function OverviewTab({
   teamColor: string;
   onMatchPress: (id: number) => void;
 }) {
+  const router = useRouter();
   // Joueurs clés : 6 premiers du squad qui ne sont pas Manager
   const keyPlayers = squad.filter((p) => p.position !== 'Manager').slice(0, 6);
   const next3 = upcoming?.slice(0, 3) ?? [];
@@ -445,29 +453,30 @@ function OverviewTab({
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingRight: 16 }}>
             {keyPlayers.map((player, index) => (
-              <LinearGradient
-                key={player.id}
-                colors={[hexToRgba(teamColor, 0.4), colors.surface]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={styles.playerCard}
-              >
-                <View style={[styles.playerAvatar, index === 0 && { borderWidth: 2, borderColor: colors.accent }]}>
-                  <Ionicons name="person" size={22} color="rgba(255,255,255,0.6)" />
-                </View>
-                <Text style={styles.playerName} numberOfLines={2}>{player.name}</Text>
-                <Text style={styles.playerPosition}>{translatePosition(player.position)}</Text>
-                <View style={styles.playerStats}>
-                  <View style={styles.playerStat}>
-                    <Text style={styles.playerStatValue}>{getAge(player.dateOfBirth) ?? '—'}</Text>
-                    <Text style={styles.playerStatLabel}>ANS</Text>
+              <Pressable key={player.id} onPress={() => router.push(`/player/${player.id}` as any)}>
+                <LinearGradient
+                  colors={[hexToRgba(teamColor, 0.4), colors.surface]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={styles.playerCard}
+                >
+                  <View style={[styles.playerAvatar, index === 0 && { borderWidth: 2, borderColor: colors.accent }]}>
+                    <Ionicons name="person" size={22} color="rgba(255,255,255,0.6)" />
                   </View>
-                  <View style={styles.playerStat}>
-                    <Flag country={player.nationality} size={20} showFallbackText={false} />
-                    <Text style={styles.playerStatLabel}>NAT.</Text>
+                  <Text style={styles.playerName} numberOfLines={2}>{player.name}</Text>
+                  <Text style={styles.playerPosition}>{translatePosition(player.position)}</Text>
+                  <View style={styles.playerStats}>
+                    <View style={styles.playerStat}>
+                      <Text style={styles.playerStatValue}>{getAge(player.dateOfBirth) ?? '—'}</Text>
+                      <Text style={styles.playerStatLabel}>ANS</Text>
+                    </View>
+                    <View style={styles.playerStat}>
+                      <Flag country={player.nationality} size={20} showFallbackText={false} />
+                      <Text style={styles.playerStatLabel}>NAT.</Text>
+                    </View>
                   </View>
-                </View>
-              </LinearGradient>
+                </LinearGradient>
+              </Pressable>
             ))}
           </ScrollView>
         )}
@@ -492,6 +501,7 @@ function SquadTab({
   squad: { id: number; name: string; position: string; dateOfBirth: string; nationality: string }[];
   teamColor: string;
 }) {
+  const router = useRouter();
   if (squad.length === 0) {
     return (
       <View style={styles.section}>
@@ -527,8 +537,9 @@ function SquadTab({
           </View>
           <View style={styles.squadCard}>
             {groups[group].map((player, index) => (
-              <View
+              <Pressable
                 key={player.id}
+                onPress={() => router.push(`/player/${player.id}` as any)}
                 style={[
                   styles.squadRow,
                   index > 0 && { borderTopWidth: 0.5, borderTopColor: colors.border },
@@ -548,7 +559,8 @@ function SquadTab({
                     </Text>
                   </View>
                 </View>
-              </View>
+                <Ionicons name="chevron-forward" size={14} color={colors.textDim} />
+              </Pressable>
             ))}
           </View>
         </View>

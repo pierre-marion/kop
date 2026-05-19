@@ -1,18 +1,24 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { colors, radius } from '../theme/tokens';
 import { topScorers } from '../data/mockData';
 
 export default function TopScorers() {
+  const router = useRouter();
   return (
     <View style={styles.card}>
-      <View style={styles.header}>
+      <Pressable
+        style={styles.header}
+        onPress={() => router.push('/competition/FL1?tab=scorers' as any)}
+        hitSlop={4}
+      >
         <View style={styles.headerLeft}>
           <Ionicons name="trophy" size={13} color={colors.accent} />
           <Text style={styles.headerTitle}>Top buteurs · Ligue 1</Text>
         </View>
         <Text style={styles.arrow}>→</Text>
-      </View>
+      </Pressable>
 
       {topScorers.map((scorer, index) => (
         <View

@@ -16,29 +16,59 @@ export const COMPETITIONS = {
   BL: 'BL1',   // Bundesliga
 } as const;
 
-// Fetcher générique
-async function fetchFromAPI<T>(endpoint: string): Promise<T> {
+// ────────────────────────────────────────────────────────────
+// Rate limiter — Football-Data plan gratuit = 10 req/min
+// File d'attente avec délai minimum entre 2 requêtes.
+// ────────────────────────────────────────────────────────────
+const MIN_DELAY_MS = 6500; // 6.5s entre 2 req → max ~9 req/min (marge sécu)
+let lastRequestAt = 0;
+let queueTail: Promise<unknown> = Promise.resolve();
+
+function throttle<T>(task: () => Promise<T>): Promise<T> {
+  const run = async (): Promise<T> => {
+    const wait = MIN_DELAY_MS - (Date.now() - lastRequestAt);
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    lastRequestAt = Date.now();
+    return task();
+  };
+  const next = queueTail.then(run, run);
+  queueTail = next.catch(() => undefined);
+  return next;
+}
+
+// Fetcher générique (passe systématiquement par le rate limiter)
+function fetchFromAPI<T>(endpoint: string): Promise<T> {
   if (!TOKEN) {
     throw new Error('EXPO_PUBLIC_FOOTBALL_DATA_TOKEN manquant dans le .env');
   }
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: {
-      'X-Auth-Token': TOKEN,
-    },
+  return throttle(async () => {
+    const url = `${BASE_URL}${endpoint}`;
+    const response = await fetch(url, {
+      headers: { 'X-Auth-Token': TOKEN },
+    });
+
+    if (!response.ok) {
+      // Lit le corps de la réponse pour diagnostic (Football-Data renvoie souvent un JSON avec `message`)
+      let body = '';
+      try { body = await response.text(); } catch {}
+      // eslint-disable-next-line no-console
+      console.warn(`[Football-Data] ${response.status} on ${endpoint} →`, body);
+
+      if (response.status === 429) {
+        throw new Error('Limite de 10 requêtes/min atteinte, réessaye dans 1 minute');
+      }
+      if (response.status === 403) {
+        throw new Error('Accès refusé : cette compétition est peut-être en plan payant');
+      }
+      if (response.status === 400) {
+        throw new Error(`Requête invalide : ${body.slice(0, 200)}`);
+      }
+      throw new Error(`Erreur API (${response.status}) : ${body.slice(0, 200)}`);
+    }
+
+    return response.json() as Promise<T>;
   });
-
-  if (!response.ok) {
-    if (response.status === 429) {
-      throw new Error('Limite de 10 requêtes/min atteinte, réessaye dans 1 minute');
-    }
-    if (response.status === 403) {
-      throw new Error('Accès refusé : cette compétition est peut-être en plan payant');
-    }
-    throw new Error(`Erreur API (${response.status})`);
-  }
-
-  return response.json();
 }
 
 // ============================================
@@ -191,6 +221,34 @@ export async function getTopScorers(competitionCode: string, limit: number = 10)
   return fetchFromAPI<{ scorers: TopScorer[] }>(
     `/competitions/${competitionCode}/scorers?limit=${limit}`
   );
+}
+
+// ============================================
+// JOUEURS
+// ============================================
+
+export type Player = {
+  id: number;
+  name: string;
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  nationality?: string;
+  section?: string;
+  position?: string;
+  shirtNumber?: number;
+  currentTeam?: {
+    id: number;
+    name: string;
+    shortName?: string;
+    tla?: string;
+    crest?: string;
+    contract?: { start?: string; until?: string };
+  };
+};
+
+export async function getPlayerById(playerId: number): Promise<Player> {
+  return fetchFromAPI<Player>(`/persons/${playerId}`);
 }
 
 // ============================================

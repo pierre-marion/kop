@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ScrollView, View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +11,8 @@ import { notifFilters, notifications, notifStats } from '../data/mockData';
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  // Marquage local des "lues" — quand on aura un store dédié, on le remontera
+  const [readAll, setReadAll] = useState(false);
 
   // Séparer les notifs par section
   const todayNotifs = notifications.filter((n) => n.section === 'today');
@@ -25,8 +28,10 @@ export default function NotificationsScreen() {
           </Pressable>
           <Text style={styles.headerTitle}>Notifications</Text>
         </View>
-        <Pressable hitSlop={10}>
-          <Text style={styles.headerAction}>Tout lire</Text>
+        <Pressable hitSlop={10} onPress={() => setReadAll(true)} disabled={readAll}>
+          <Text style={[styles.headerAction, readAll && { color: colors.textDim }]}>
+            {readAll ? 'Tout lu' : 'Tout lire'}
+          </Text>
         </Pressable>
       </View>
 
@@ -59,7 +64,7 @@ export default function NotificationsScreen() {
                   label={notif.label}
                   title={notif.title}
                   time={notif.time}
-                  isUnread={notif.isUnread}
+                  isUnread={!readAll && notif.isUnread}
                 />
               ))}
             </View>
@@ -80,7 +85,7 @@ export default function NotificationsScreen() {
                   label={notif.label}
                   title={notif.title}
                   time={notif.time}
-                  isUnread={notif.isUnread}
+                  isUnread={!readAll && notif.isUnread}
                 />
               ))}
             </View>
@@ -89,7 +94,7 @@ export default function NotificationsScreen() {
 
         {/* Card "Gérer mes alertes" en bas */}
         <View style={styles.manageWrapper}>
-          <Pressable>
+          <Pressable onPress={() => router.push('/profile')}>
             <LinearGradient
               colors={['rgba(204,255,0,0.08)', colors.surface]}
               start={{ x: 0, y: 0 }}

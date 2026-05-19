@@ -13,10 +13,11 @@ type SettingsState = {
   notifLiveMatches: boolean;
   notifGoals: boolean;
   notifNews: boolean;
+  notifMatchReminders: boolean;
 
   setTheme: (mode: ThemeMode) => Promise<void>;
   setLanguage: (lang: Language) => Promise<void>;
-  setNotif: (key: 'notifLiveMatches' | 'notifGoals' | 'notifNews', value: boolean) => Promise<void>;
+  setNotif: (key: 'notifLiveMatches' | 'notifGoals' | 'notifNews' | 'notifMatchReminders', value: boolean) => Promise<void>;
   hydrateFromProfile: () => Promise<void>;
 };
 
@@ -35,6 +36,7 @@ export const useSettingsStore = create<SettingsState>()(
       notifLiveMatches: true,
       notifGoals: true,
       notifNews: false,
+      notifMatchReminders: false,
 
       setTheme: async (mode) => {
         set({ theme: mode });
@@ -52,6 +54,7 @@ export const useSettingsStore = create<SettingsState>()(
           notifLiveMatches: 'notif_live_matches',
           notifGoals: 'notif_goals',
           notifNews: 'notif_news',
+          notifMatchReminders: 'notif_match_reminders',
         } as const;
         await syncToProfile({ [map[key]]: value });
       },

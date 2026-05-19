@@ -1,20 +1,31 @@
 import { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { I18nextProvider } from 'react-i18next';
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
 import i18n from '../lib/i18n';
 import { ThemeProvider, useIsDark } from '../theme/ThemeProvider';
 import { useAuthStore } from '../stores/auth';
 import { useSettingsStore } from '../stores/settings';
 import { useFavoritesStore } from '../stores/favorites';
+import { useFavoriteMatchAlerts } from '../hooks/useFavoriteMatchAlerts';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000,
-      gcTime: 5 * 60 * 1000,
+      staleTime: 5 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
       refetchOnWindowFocus: false,
       retry: 2,
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
@@ -48,6 +59,9 @@ function AppContent() {
     if (i18n.language !== language) i18n.changeLanguage(language);
   }, [language]);
 
+  // Planifie les notifications locales des matchs favoris
+  useFavoriteMatchAlerts();
+
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
@@ -59,6 +73,7 @@ function AppContent() {
         <Stack.Screen name="match/[id]" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="competition/[id]" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="team/[id]" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="player/[id]" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="auth" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
       </Stack>
     </>
@@ -66,6 +81,30 @@ function AppContent() {
 }
 
 export default function RootLayout() {
+  // Chargement de la police Inter
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
+
+  // Écran de chargement pendant que la police se charge
+  if (!fontsLoaded) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#0A0A0B',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <ActivityIndicator color="#CCFF00" />
+      </View>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>

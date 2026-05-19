@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius } from '../theme/tokens';
@@ -16,7 +16,15 @@ export default function FaisTonMercatoTeaser() {
         <Text style={styles.title}>Fais ton mercato</Text>
         <Text style={styles.subtitle}>Compose l'effectif idéal avec ton budget</Text>
       </View>
-      <Pressable style={styles.button}>
+      <Pressable
+        style={styles.button}
+        onPress={() =>
+          Alert.alert(
+            'Bientôt disponible',
+            'Le mode "Fais ton mercato" arrive dans une prochaine version. Reste connecté !'
+          )
+        }
+      >
         <Text style={styles.buttonText}>JOUER</Text>
       </Pressable>
     </LinearGradient>

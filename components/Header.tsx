@@ -2,6 +2,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { colors } from '../theme/tokens';
+import { fonts } from '../theme/tokens';
 
 export default function Header() {
   const router = useRouter();
@@ -53,13 +54,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 4,
   },
-  logo: {
-    fontSize: 28,
-    fontWeight: '600',
-    color: colors.text,
-    letterSpacing: -1,
-    lineHeight: 30,
-  },
+ 
   dot: {
     width: 7,
     height: 7,
@@ -70,6 +65,14 @@ const styles = StyleSheet.create({
   icons: {
     flexDirection: 'row',
     gap: 10,
+  },
+
+    logo: {
+    fontSize: 28,
+    fontFamily: fonts.semibold,  // ← AJOUTE
+    color: colors.text,
+    letterSpacing: -1,
+    lineHeight: 30,
   },
   iconButton: {
     width: 38,

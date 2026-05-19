@@ -75,7 +75,12 @@ export const clubColors = {
   BAY: { primary: '#DC052D', secondary: '#ffffff' },
   DOR: { primary: '#FDE100', secondary: '#000000' },
 } as const;
-
+export const fonts = {
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semibold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
+} as const;
 // Couleurs des compétitions
 export const competitionColors = {
   L1: '#003DA5',

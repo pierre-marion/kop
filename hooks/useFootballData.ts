@@ -6,6 +6,7 @@ import {
   getTeamById,
   getTeamUpcomingMatches,
   getMatchesAroundToday,
+  getPlayerById,
   pickFeaturedMatch,
   pickUpcomingMatches,
   COMPETITIONS,
@@ -88,6 +89,16 @@ export function useTeam(teamId: number | undefined) {
     queryFn: () => getTeamById(teamId!),
     enabled: !!teamId,
     staleTime: 10 * 60 * 1000,
+  });
+}
+
+// Détail d'un joueur (endpoint /persons/{id})
+export function usePlayer(playerId: number | undefined) {
+  return useQuery({
+    queryKey: ['player', playerId],
+    queryFn: () => getPlayerById(playerId!),
+    enabled: !!playerId,
+    staleTime: 30 * 60 * 1000, // données joueur très peu volatiles
   });
 }
 

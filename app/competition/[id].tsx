@@ -483,11 +483,12 @@ function TeamsTab({ totalTable, isLoading, error }: { totalTable: StandingEntry[
 
 export default function CompetitionDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, tab } = useLocalSearchParams<{ id: string; tab?: string }>();
   const apiCode = (id ?? '').toUpperCase();
   const config = getCompetitionConfig(apiCode);
 
-  const [activeTab, setActiveTab] = useState<string>('standings');
+  const initialTab = tab && competitionTabs.some((t) => t.id === tab) ? tab : 'standings';
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
 
   const {
     data: standingsData,

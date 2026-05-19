@@ -1,16 +1,21 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { colors } from '../theme/tokens';
 
 type Props = {
   title: string;
   action?: string;
+  onPress?: () => void;
 };
 
-export default function SectionHeader({ title, action = 'Voir tout' }: Props) {
+export default function SectionHeader({ title, action = 'Voir tout', onPress }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.action}>{action}</Text>
+      {onPress ? (
+        <Pressable onPress={onPress} hitSlop={8}>
+          <Text style={[styles.action, styles.actionPressable]}>{action}</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -32,5 +37,8 @@ const styles = StyleSheet.create({
   action: {
     fontSize: 10,
     color: colors.textDim,
+  },
+  actionPressable: {
+    color: colors.accent,
   },
 });

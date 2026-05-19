@@ -26,6 +26,7 @@ export default function ProfileScreen() {
   const notifLive = useSettingsStore((s) => s.notifLiveMatches);
   const notifGoals = useSettingsStore((s) => s.notifGoals);
   const notifNews = useSettingsStore((s) => s.notifNews);
+  const notifMatchReminders = useSettingsStore((s) => s.notifMatchReminders);
   const setNotif = useSettingsStore((s) => s.setNotif);
 
   const favorites = useFavoritesStore((s) => s.items);
@@ -169,6 +170,12 @@ export default function ProfileScreen() {
               icon="newspaper-outline"
               value={notifNews}
               onChange={(v) => setNotif('notifNews', v)}
+            />
+            <NotifRow
+              label="Rappel matchs favoris"
+              icon="alarm-outline"
+              value={notifMatchReminders}
+              onChange={(v) => setNotif('notifMatchReminders', v)}
               isLast
             />
           </View>

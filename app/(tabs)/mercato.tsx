@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,8 +9,33 @@ import OfficialDealCard from '../../components/OfficialDealCard';
 import RumorCard from '../../components/RumorCard';
 import FaisTonMercatoTeaser from '../../components/FaisTonMercatoTeaser';
 import { mercatoOverview, officialDeals, transferRumors } from '../../data/mockData';
+import { useFavoritesStore } from '../../stores/favorites';
+import { buildFavoriteClubMatcher } from '../../lib/favoritesMatch';
+
+function clubIds(item: any): Array<string | null | undefined> {
+  return [
+    item.clubFrom?.code,
+    item.clubFrom?.name,
+    item.clubTo?.code,
+    item.clubTo?.name,
+  ];
+}
 
 export default function MercatoScreen() {
+  const favorites = useFavoritesStore((s) => s.items);
+
+  const { favDeals, otherDeals, favRumors, otherRumors } = useMemo(() => {
+    const matches = buildFavoriteClubMatcher(favorites);
+    return {
+      favDeals: officialDeals.filter((d) => matches(clubIds(d))),
+      otherDeals: officialDeals.filter((d) => !matches(clubIds(d))),
+      favRumors: transferRumors.filter((r) => matches(clubIds(r))),
+      otherRumors: transferRumors.filter((r) => !matches(clubIds(r))),
+    };
+  }, [favorites]);
+
+  const hasFavorites = favDeals.length + favRumors.length > 0;
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -20,16 +46,58 @@ export default function MercatoScreen() {
 
         <MercatoOverview />
 
+        {/* Section "Tes clubs" — affichée seulement si des favoris matchent */}
+        {hasFavorites && (
+          <>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionTitleRow}>
+                <Ionicons name="star" size={13} color={colors.accent} />
+                <Text style={styles.sectionTitle}>Tes clubs</Text>
+              </View>
+              <Text style={styles.sectionAction}>
+                {favDeals.length + favRumors.length} actu{favDeals.length + favRumors.length > 1 ? 's' : ''}
+              </Text>
+            </View>
+
+            {favDeals.map((deal) => (
+              <OfficialDealCard
+                key={`favd-${deal.id}`}
+                playerName={deal.playerName}
+                date={deal.date}
+                type={deal.type}
+                clubFrom={deal.clubFrom}
+                clubTo={deal.clubTo}
+                amount={deal.amount}
+                salary={deal.salary}
+                duration={deal.duration}
+                accentColor={deal.accentColor}
+              />
+            ))}
+            {favRumors.map((rumor) => (
+              <RumorCard
+                key={`favr-${rumor.id}`}
+                playerName={rumor.playerName}
+                amount={rumor.amount}
+                clubFrom={rumor.clubFrom}
+                clubTo={rumor.clubTo}
+                reliability={rumor.reliability}
+                sources={rumor.sources}
+                trackedDays={rumor.trackedDays}
+              />
+            ))}
+          </>
+        )}
+
         {/* Section Deals officiels */}
-        <View style={styles.sectionHeader}>
+        <View style={[styles.sectionHeader, hasFavorites && { marginTop: 12 }]}>
           <View style={styles.sectionTitleRow}>
             <View style={styles.dot} />
             <Text style={styles.sectionTitle}>Deals officiels</Text>
           </View>
-          <Text style={styles.sectionAction}>23 cette semaine →</Text>
+          <Text style={styles.sectionAction}>23 cette semaine</Text>
         </View>
 
-        {officialDeals.map((deal) => (
+        {otherDeals.map((deal) => (
           <OfficialDealCard
             key={deal.id}
             playerName={deal.playerName}
@@ -55,7 +123,7 @@ export default function MercatoScreen() {
           </Text>
         </View>
 
-        {transferRumors.map((rumor) => (
+        {otherRumors.map((rumor) => (
           <RumorCard
             key={rumor.id}
             playerName={rumor.playerName}

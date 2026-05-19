@@ -1,0 +1,130 @@
+/**
+ * Traductions FR des libellés joueur (positions, sections, pays courants).
+ * Pour les pays manquants, on retombe sur le nom original.
+ */
+
+export const POSITION_FR: Record<string, string> = {
+  // Sections génériques (Football-Data renvoie parfois ça dans position)
+  Offence: 'Attaque',
+  Midfield: 'Milieu',
+  Defence: 'Défense',
+  Goalkeepers: 'Gardien',
+  // Positions spécifiques
+  Goalkeeper: 'Gardien',
+  Defender: 'Défenseur',
+  'Centre-Back': 'Défenseur central',
+  'Left-Back': 'Arrière gauche',
+  'Right-Back': 'Arrière droit',
+  'Left Wing-Back': 'Piston gauche',
+  'Right Wing-Back': 'Piston droit',
+  Midfielder: 'Milieu',
+  'Defensive Midfield': 'Milieu défensif',
+  'Central Midfield': 'Milieu central',
+  'Attacking Midfield': 'Milieu offensif',
+  Forward: 'Attaquant',
+  'Centre-Forward': 'Avant-centre',
+  'Left Winger': 'Ailier gauche',
+  'Right Winger': 'Ailier droit',
+  Attacker: 'Attaquant',
+  'Second Striker': 'Second attaquant',
+  Striker: 'Attaquant',
+};
+
+export function translatePosition(p?: string | null): string {
+  if (!p) return '—';
+  return POSITION_FR[p] || p;
+}
+
+export const COUNTRY_FR: Record<string, string> = {
+  England: 'Angleterre',
+  France: 'France',
+  Germany: 'Allemagne',
+  Italy: 'Italie',
+  Spain: 'Espagne',
+  Portugal: 'Portugal',
+  Netherlands: 'Pays-Bas',
+  Belgium: 'Belgique',
+  Switzerland: 'Suisse',
+  Austria: 'Autriche',
+  Scotland: 'Écosse',
+  Wales: 'Pays de Galles',
+  'Northern Ireland': 'Irlande du Nord',
+  Ireland: 'Irlande',
+  Denmark: 'Danemark',
+  Sweden: 'Suède',
+  Norway: 'Norvège',
+  Finland: 'Finlande',
+  Iceland: 'Islande',
+  Poland: 'Pologne',
+  'Czech Republic': 'Tchéquie',
+  Czechia: 'Tchéquie',
+  Slovakia: 'Slovaquie',
+  Hungary: 'Hongrie',
+  Romania: 'Roumanie',
+  Bulgaria: 'Bulgarie',
+  Greece: 'Grèce',
+  Turkey: 'Turquie',
+  Türkiye: 'Turquie',
+  Croatia: 'Croatie',
+  Serbia: 'Serbie',
+  Slovenia: 'Slovénie',
+  'Bosnia-Herzegovina': 'Bosnie-Herzégovine',
+  'Bosnia and Herzegovina': 'Bosnie-Herzégovine',
+  Albania: 'Albanie',
+  Kosovo: 'Kosovo',
+  Montenegro: 'Monténégro',
+  'North Macedonia': 'Macédoine du Nord',
+  Ukraine: 'Ukraine',
+  Russia: 'Russie',
+  Lithuania: 'Lituanie',
+  Latvia: 'Lettonie',
+  Estonia: 'Estonie',
+  Moldova: 'Moldavie',
+  Georgia: 'Géorgie',
+  Armenia: 'Arménie',
+  Azerbaijan: 'Azerbaïdjan',
+  Luxembourg: 'Luxembourg',
+  Monaco: 'Monaco',
+  // Amérique
+  Brazil: 'Brésil',
+  Argentina: 'Argentine',
+  Uruguay: 'Uruguay',
+  Chile: 'Chili',
+  Colombia: 'Colombie',
+  Peru: 'Pérou',
+  Ecuador: 'Équateur',
+  Mexico: 'Mexique',
+  'United States': 'États-Unis',
+  Canada: 'Canada',
+  Venezuela: 'Venezuela',
+  Paraguay: 'Paraguay',
+  Bolivia: 'Bolivie',
+  // Afrique
+  Morocco: 'Maroc',
+  Algeria: 'Algérie',
+  Tunisia: 'Tunisie',
+  Egypt: 'Égypte',
+  Senegal: 'Sénégal',
+  'Ivory Coast': 'Côte d\'Ivoire',
+  "Côte d'Ivoire": 'Côte d\'Ivoire',
+  Cameroon: 'Cameroun',
+  Nigeria: 'Nigeria',
+  Ghana: 'Ghana',
+  Mali: 'Mali',
+  'South Africa': 'Afrique du Sud',
+  // Asie
+  Japan: 'Japon',
+  'South Korea': 'Corée du Sud',
+  'Korea Republic': 'Corée du Sud',
+  China: 'Chine',
+  Iran: 'Iran',
+  'Saudi Arabia': 'Arabie saoudite',
+  Qatar: 'Qatar',
+  'United Arab Emirates': 'Émirats arabes unis',
+  Australia: 'Australie',
+};
+
+export function translateCountry(c?: string | null): string {
+  if (!c) return '—';
+  return COUNTRY_FR[c] || c;
+}
